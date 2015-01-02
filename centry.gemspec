@@ -18,7 +18,11 @@ Gem::Specification.new do |spec|
   spec.require_paths = ["lib"]
 
   spec.add_dependency "grape", "~> 0.10"
+  spec.add_dependency "grape-entity", "~> 0.4"
   spec.add_dependency "mongoid", "~> 4.0"
+  spec.add_dependency "roadie", "~> 3.0"
+  spec.add_dependency "actionmailer", "~> 4.2"
+
   spec.add_dependency "request_store", "~> 1.1"
   spec.add_dependency "rack-cors", "~> 0.2"
   spec.add_dependency "bcrypt", "~> 3.1"

@@ -1,148 +1,162 @@
 module Centry
+
   module API
-    
+
     class Users < Grape::API
 
-    prefix '/v1/users'
-    helpers Centry::AuthHelper
+      version 'v1', using: :path
 
-      #
-      # GET /
-      #
-      desc "lists all users"
-      get do
-        authenticate!
-        User.where({})
-      end
+      namespace 'users' do
 
-      #
-      # GET /current
-      #
-      desc "return user relation of current token"
-      get '/current' do
-        authenticate!
-        User.find( @token.user_id )
-      end
+        helpers Centry::ApplicationHelper
+        helpers Centry::AuthHelper
+        helpers Centry::UsersHelper
 
-      #
-      # GET /:id
-      #
-      desc "returns user with :id"
-      params do
-        requires :id, type: Integer, desc: "the user's id"
-      end
-      route_param :id do
+        #
+        # GET /
+        #
+        desc "lists all users"
         get do
           authenticate!
-          error!('InsufficientRights', 403) unless params.id == @token.user_id || @token.user.is_admin?
-          User.find_by(id: params.id)
+          users = User.all
+          present users, with: Entities::User
         end
-      end
 
-      #
-      # POST /
-      #
-      desc "create a new user within the new group"
-      params do
-        requires :user, type: Hash do
-          requires :email
-          optional :username
-          optional :firstname
-          optional :lastname
-          optional :password
+        #
+        # GET /current
+        #
+        desc "return user relation of current token"
+        get '/current' do
+          authenticate!
+          user = User.find( @token.user_id )
+          present user, with: Entities::User
+        end
+
+        #
+        # GET /:id
+        #
+        desc "returns user with :id"
+        get ':id' do
+          authenticate!
+          error!('InsufficientRights', 403) unless params.id == @token.user_id.to_s || @token.user.is_admin?
+          user = User.where(id: params.id, organization_ids: headers['Organization_id']).first
+          present user, with: Entities::User
+        end
+
+        #
+        # POST /
+        #
+        desc "create a new user within the new group"
+        params do
+          requires :user, type: Hash do
+            requires :email
+            optional :username
+            optional :firstname
+            optional :lastname
+            optional :password
+            optional :valid_until
+            optional :role, values: ['user','admin'], default: 'user'
+          end
           optional :organization_id
-          optional :valid_until
-          optional :role, values: ['user','admin'], default: 'user'
         end
-      end
-      post do
-        authenticate!
-        User.create( user_params )
-      end
-
-      #
-      # POST /change_password
-      #
-      desc "changes the password for the current user"
-      params do
-        requires :old, desc: "the current password"
-        requires :new, desc: "the new password"
-      end
-      post '/change_password' do
-        authenticate!
-        user = User.find( @token.user_id )
-        return error!("WrongPassword",403) unless user.authenticate( params.old )
-        user.password = params.new
-        return error("failed to save", 422) unless user.save
-        User.find( @token.user_id )
-      end
-
-      #
-      # POST /signup
-      #
-      desc "signs up a new user account (if allowed in config)"
-      params do
-        requires :email, regexp: /.+@.+/
-        requires :password, regexp: /(?=.*[\w0-9])(?=.*[a-z])(?=.*[A-Z]).{6,}/
-        optional :organization
-        optional :username
-      end
-      post '/signup', root: false do
-        if Organization.where( name: params.organization ).count > 0
-          return error!('OrganizationExists',409)
+        post do
+          authenticate!
+          require_admin!
+          user = User.new( declared( params )[:user] )
+          user.organization_id = params.organization_id if current_user.is_admin?
+          error!({ error: 'SavingFailed', details: user.errors.full_messages}, 422) unless user.save
+          present user, with: Entities::User
         end
-        if User.where( email: params.email ).count > 0
-          return error!('EmailExists',409)
+
+        #
+        # POST /change_password
+        #
+        desc "changes the password for the current user"
+        params do
+          requires :old, desc: "the current password"
+          requires :new, desc: "the new password"
         end
-        user = User.create( email: params.email, password: params.password, username: params.username )
-        return error!(user.errors.full_messages,422) unless user
-        return error!(UserMailerError,500) unless UserMailer.signup( user, base_url ).deliver
-        env['api.format'] = :custom_json
-        { key: user.confirmation_key }
-      end
+        post '/change_password' do
+          authenticate!
+          user = User.find( @token.user_id )
+          return error!("WrongPassword",403) unless user.authenticate( params.old )
+          user.password = params.new
+          return error("failed to save", 422) unless user.save
+          user = User.find( @token.user_id )
+          present user, with: Entities::User
+        end
 
-      #
-      # POST /check_code
-      #
-      desc "checks the code for the given user"
-      params do
-        requires :confirmation_key
-        requires :confirmation_code
-      end
-      post ':id/check_code' do
-        user = User.where( id: params.id, confirmation_key: params.confirmation_key, confirmation_code: params.confirmation_code ).first
-        return error!('InvalidKey',409) unless user
-      end
-
-      #
-      # PUT /:id
-      #
-      desc "update an existing user"
-      params do
-        requires :user, type: Hash do
-          optional :email
+        #
+        # POST /signup
+        #
+        desc "signs up a new user account (if allowed in config)"
+        params do
+          requires :email, regexp: /.+@.+/
+          requires :password, regexp: /(?=.*[\w0-9])(?=.*[a-z])(?=.*[A-Z]).{6,}/
+          optional :organization
           optional :username
-          optional :firstname
-          optional :lastname
-          optional :password
-          optional :organization_id
-          optional :role, values: ['user','admin'], default: 'user'
         end
-      end
-      put '/:id' do
-        authenticate!
-        User.update( params.id, user_params )
-        User.find( params.id )
-      end
+        post '/signup', root: false do
+          if Organization.where( name: params.organization ).count > 0
+            return error!('OrganizationExists',409)
+          end
+          if User.where( email: params.email ).count > 0
+            return error!('EmailExists',409)
+          end
+          user = User.create( email: params.email, password: params.password, username: params.username )
+          return error!(user.errors.full_messages,422) unless user
+          return error!(UserMailerError,500) unless UserMailer.signup( user, base_url ).deliver
+          { key: user.confirmation_key }
+        end
 
-      #
-      # DELETE /:id
-      #
-      desc "delete an existing user"
-      formatter :json, lambda{ |o,env| "{}" }
-      delete '/:id' do
-        authenticate!
-        User.destroy( params.id )
+        #
+        # POST /check_code
+        #
+        desc "checks the code for the given user"
+        params do
+          requires :confirmation_key
+          requires :confirmation_code
+        end
+        post ':id/check_code' do
+          user = User.where( id: params.id, confirmation_key: params.confirmation_key, confirmation_code: params.confirmation_code ).first
+          return error!('InvalidKey',409) unless user
+        end
+
+        #
+        # PUT /:id
+        #
+        desc "update an existing user"
+        params do
+          requires :user, type: Hash do
+            optional :email
+            optional :username
+            optional :firstname
+            optional :lastname
+            optional :password
+            optional :role, values: ['user','admin'], default: 'user'
+          end
+          optional :organization_id
+        end
+        put '/:id' do
+          authenticate!
+          user = get_user!
+          require_admin_or_current_user!
+          user.update_attributes( declared(params)[:user] )
+          present user.reload, with: Entities::User
+        end
+
+        #
+        # DELETE /:id
+        #
+        desc "delete an existing user"
+        formatter :json, lambda{ |o,env| "{}" }
+        delete '/:id' do
+          authenticate!
+          user = get_user!
+          require_admin_or_current_user!
+          error!("DeletionFailed",500) unless user.destroy
+        end
+
       end
 
     end

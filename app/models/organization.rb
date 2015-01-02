@@ -1,8 +1,8 @@
 class Organization
 
   include Mongoid::Document
-  # include Mongoid::Userstamp
-  # include Mongoid::Timestamps
+  include Centry::Userstamps
+  include Centry::Timestamps
 
   field :name, type: String
   field :fqdn, type: String

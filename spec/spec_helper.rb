@@ -1,4 +1,5 @@
 ENV['RACK_ENV'] = 'test'
+ENV['CENTRY_ROOT'] = File::dirname(__FILE__)+'/support'
 require 'simplecov'
 require 'hashie'
 SimpleCov.start

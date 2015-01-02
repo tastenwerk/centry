@@ -6,18 +6,21 @@ module Centry
 
       helpers Centry::AuthHelper
 
-      prefix '/v1/auth'
+      version 'v1', using: :path
 
-       # ============================================================
-      # POST
-      desc "authenticates a user"
-      params do
-        requires :login, desc: "email address or username accepted"
-        requires :password, desc: "the user's password"
-      end
-      post do
-        authenticate_user
-        @current_user.api_key
+      namespace :auth do
+
+         # ============================================================
+        # POST
+        desc "authenticates a user"
+        params do
+          requires :login, desc: "email address or username accepted"
+          requires :password, desc: "the user's password"
+        end
+        post do
+          present :api_key, authenticate_user, with: Entities::ApiKey
+        end
+        
       end
 
     end

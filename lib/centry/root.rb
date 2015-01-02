@@ -1,13 +1,13 @@
 module Centry
 
   def self.root
-    File::join( Dir.pwd, opts )
+    ENV['CENTRY_ROOT'] || Dir.pwd
   end
 
   module Root
 
     def self.join( *opts )
-      File::join( Dir.pwd, opts )
+      File::join( Centry.root, opts )
     end
 
   end

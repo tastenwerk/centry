@@ -6,10 +6,11 @@ module Centry
 
     def self.load_all
       @@paths.each do |dir|
-        Dir.glob( "#{dir}/{helpers,api,models,mailer}/**/*.rb" ).each do |file|
+        Dir.glob( "#{dir}/{helpers,entities,api,models,mailer}/**/*.rb" ).each do |file|
           require file
         end
         self.require_api_root( dir )
+        self.register_mailer_paths( dir )
       end
     end
 
@@ -28,6 +29,12 @@ module Centry
       api_root = File::join( dir, 'api.rb' )
       return unless File::exists? api_root
       require api_root
+    end
+
+    def self.register_mailer_paths( dir )
+      mailer_path = File::join( dir, 'views', 'mailer' )
+      return unless File::exists? mailer_path
+      Centry::Mailer.register_view_path( mailer_path )
     end
 
   end

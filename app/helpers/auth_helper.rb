@@ -3,7 +3,7 @@ module Centry
 
     def authenticate_user
       @current_user = User
-              .where( "username=? OR email=?", params.login, params.login )
+              .or( [ { username: params.login }, { email: params.login } ] )
               .first
       return error!('InvalidCredentials',401) unless @current_user && @current_user.authenticate( params.password )
       @current_user.aquire_api_key
