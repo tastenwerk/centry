@@ -32,7 +32,7 @@ module Centry
     end
 
     def self.register_mailer_paths( dir )
-      mailer_path = File::join( dir, 'views', 'mailer' )
+      mailer_path = File::join( dir, 'views' )
       return unless File::exists? mailer_path
       Centry::Mailer.register_view_path( mailer_path )
     end

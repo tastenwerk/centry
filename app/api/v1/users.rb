@@ -105,7 +105,7 @@ module Centry
           end
           user = User.create( email: params.email, password: params.password, username: params.username )
           return error!(user.errors.full_messages,422) unless user
-          return error!(UserMailerError,500) unless UserMailer.signup( user, base_url ).deliver
+          return error!(UserMailerError,500) unless UserMailer.signup( user, base_url ).deliver_now
           { key: user.confirmation_key }
         end
 

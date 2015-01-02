@@ -3,13 +3,15 @@ require 'yaml'
 
 module Centry
 
-  @@config = nil
-
-  def self.config
-    return @@config if @@config
-    @@config = {} 
-    @@config[:mailer] = YAML.load(Centry.Root.join('config','mailer.yml'))
-    @@config = Hashie::Mash.new @@config
+  def self.configure( &block )
+    config = { action_mailer: ActionMailer::Base }
+    yield Hashie::Mash.new(config) if block_given?
   end
 
+end
+
+application_config_file = Centry::Root.join 'config', 'application.rb'
+
+if File::exists? application_config_file
+  require application_config_file
 end

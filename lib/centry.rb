@@ -14,6 +14,7 @@ require "centry/userstamps"
 require "centry/timestamps"
 require "centry/mongoid"
 require "centry/mailer"
+require "centry/config"
 
 module Centry
 
