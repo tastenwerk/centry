@@ -11,6 +11,7 @@ module Centry
         end
         self.require_api_root( dir )
         self.register_mailer_paths( dir )
+        self.register_assets_paths( dir )
       end
     end
 
@@ -35,6 +36,14 @@ module Centry
       mailer_path = File::join( dir, 'views' )
       return unless File::exists? mailer_path
       Centry::Mailer.register_view_path( mailer_path )
+    end
+
+    def self.register_assets_paths( dir )
+      assets_path = File::join( dir, 'assets' )
+      return unless File::exists? assets_path
+      Centry.Assets << File::join( assets_path, '/javascripts' )
+      Centry.Assets << File::join( assets_path, '/stylesheets' )
+      Centry.Assets << File::join( assets_path, '/images' )
     end
 
   end
