@@ -1,6 +1,7 @@
 require 'erb'
 require 'hashie'
 require 'centry/assets'
+require 'centry/i18n'
 
 module Centry
 
@@ -18,7 +19,6 @@ module Centry
   module View
 
     def self.render( filename, context={} )
-      context[:locale] = I18n.locale
       # context = Hashie::Mash.new(context)
       ERB.new(File.read(filename)).result( ERBContext.new(context).get_binding )
     end
@@ -58,6 +58,7 @@ module Centry
   module UI
     def self.application
       Proc.new do |env|
+        Centry::UserLocale.new(env).call(env)
         path = Rack::Utils.unescape(env['PATH_INFO'])
         path = 'index' if path == '/'
         if file = Centry::Plugin.find_view( path+'.html.erb' )

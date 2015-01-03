@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="<%= @locale %>">
+<html lang="<%= I18n.locale %>">
 <head>
 
   <title>centry</title>
@@ -9,7 +9,7 @@
 
   <script type="text/javascript">
     window.CENTRY_ENGINE_VERSION = '<%= Centry::VERSION %>';
-    window.LANG = '<%= @locale %>';
+    window.LANG = '<%= I18n.locale %>';
   </script>
   <%= javascript_tag 'centry' %>
 

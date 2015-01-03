@@ -1,7 +1,7 @@
 # common settings
 
 # language
-window.LANG = 'de' || $('html').attr('lang')
+window.LANG = $('html').attr('lang')
 
 Ember.I18n.locale = LANG
 Ember.I18n.translations = Ember.I18n.availableTranslations[LANG]

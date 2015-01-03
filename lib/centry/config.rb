@@ -4,7 +4,10 @@ require 'yaml'
 module Centry
 
   def self.configure( &block )
-    config = { action_mailer: ActionMailer::Base }
+    config = { 
+      action_mailer: ActionMailer::Base,
+      i18n: I18n
+    }
     yield Hashie::Mash.new(config) if block_given?
   end
 

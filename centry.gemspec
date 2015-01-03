@@ -19,6 +19,7 @@ Gem::Specification.new do |spec|
 
   spec.add_dependency "grape", "~> 0.10"
   spec.add_dependency "grape-entity", "~> 0.4"
+  spec.add_dependency "i18n", "~> 0.7"
   spec.add_dependency "mongoid", "~> 4.0"
   spec.add_dependency "roadie", "~> 3.0"
   spec.add_dependency "actionmailer", "~> 4.2"
