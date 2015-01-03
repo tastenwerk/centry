@@ -55,7 +55,7 @@ class User
   validates_uniqueness_of :email
   validates_format_of :email, :with => /@/
 
-  before_validation :set_password_if_blank, :set_confirmation_code
+  before_validation :set_password_if_blank, :set_confirmation_code, on: :create
   before_create :create_membership_for_organization
   # after_create :find_or_create_organization 
 
@@ -85,6 +85,10 @@ class User
 
   def is_admin?
     role == 'admin'
+  end
+
+  def confirmed?
+    self.confirmation_code.nil?
   end
 
   def organization_id=(org_id)

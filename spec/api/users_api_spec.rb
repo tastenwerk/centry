@@ -132,7 +132,7 @@ describe Centry::API::Users do
       header 'Authorization', "Bearer #{@admin.aquire_api_key.token}"
     end
 
-    describe "update" do
+    describe "update", focus: true do
 
       describe "email" do
 
@@ -221,17 +221,40 @@ describe Centry::API::Users do
 
   describe :signup do
 
-    before :all do
+    before :each do
       post "v1/users/signup", email: 'test@example.com', password: 'Test1234'
     end
-
-    it { expect(last_response.status).to be == 201 }
-
-    it { expect(json).to have_key(:key) }
 
     it "sends an email" do
       expect(ActionMailer::Base.deliveries.count).to eq(1)
     end
+
+    it { expect(last_response.status).to be == 201 }
+
+    it { expect(json).to have_key(:confirmation_key) }
+
+    it { expect(json).to have_key(:id) }
+
+    it { expect(User.first.confirmation_key).to be == json['confirmation_key'] }
+
+    it { expect(User.first.id.to_s).to be == json['id'] }
+
+    it { expect(User.first.confirmed?).to be false }
+
+  end
+
+  describe :confirm do
+
+    before :each do
+      @user = create(:user)
+      post "v1/users/#{@user.id}/confirm", confirmation_key: @user.confirmation_key, confirmation_code: @user.confirmation_code
+    end
+
+    it { expect(last_response.status).to be == 200 }
+
+    it { expect(json).to have_key(:user) }
+
+    it { expect(User.first.confirmed?).to be true }
 
   end
 

@@ -1,7 +1,6 @@
 require 'erb'
 require 'hashie'
 require 'centry/assets'
-require 'centry/i18n'
 
 module Centry
 
@@ -58,7 +57,6 @@ module Centry
   module UI
     def self.application
       Proc.new do |env|
-        Centry::UserLocale.new(env).call(env)
         path = Rack::Utils.unescape(env['PATH_INFO'])
         path = 'index' if path == '/'
         if file = Centry::Plugin.find_view( path+'.html.erb' )

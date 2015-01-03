@@ -4,6 +4,7 @@ module Centry
 
     def self.application
       Rack::Builder.new do
+        use Centry::UserLocale
         use RequestStore::Middleware
         use Rack::Cors do
           allow do

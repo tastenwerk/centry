@@ -106,20 +106,25 @@ module Centry
           user = User.create( email: params.email, password: params.password, username: params.username )
           return error!(user.errors.full_messages,422) unless user
           return error!(UserMailerError,500) unless UserMailer.signup( user, base_url ).deliver_now
-          { key: user.confirmation_key }
+          { confirmation_key: user.confirmation_key, id: user.id.to_s }
         end
 
         #
-        # POST /check_code
+        # POST /:id/confirm
         #
         desc "checks the code for the given user"
         params do
           requires :confirmation_key
           requires :confirmation_code
         end
-        post ':id/check_code' do
+        post ':id/confirm' do
           user = User.where( id: params.id, confirmation_key: params.confirmation_key, confirmation_code: params.confirmation_code ).first
           return error!('InvalidKey',409) unless user
+          user.update_attributes( confirmation_key: nil, confirmation_code: nil, confirmation_key_expires_at: nil )
+          error!({ error: 'SavingFailed', details: user.errors.full_messages},500) if user.errors.size > 0
+          user = user.reload
+          status 200
+          present user.reload, with: Entities::User
         end
 
         #
@@ -132,7 +137,6 @@ module Centry
             optional :username
             optional :firstname
             optional :lastname
-            optional :password
             optional :role, values: ['user','admin'], default: 'user'
           end
           optional :organization_id
