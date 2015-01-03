@@ -1,5 +1,6 @@
 require 'sprockets'
 require 'handlebars_assets'
+require 'coffee-script'
 
 module Centry
 
