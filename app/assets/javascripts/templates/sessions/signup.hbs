@@ -1,0 +1,60 @@
+<div class="login-wrap">
+
+  <form {{action 'signupUser' on='submit'}} class="card">
+
+    <div class="logo">
+      <img src="/favicon.png" class="logo-img">
+    </div>
+
+    {{#if message}}
+    <div {{bind-attr class=":alert valid:alert-info:alert-danger error:alert-danger"}}>{{{message}}}</div>
+    {{/if}}
+
+    <div class="radio radio-success inline">
+      {{radio-button id='isOrganization'  name='isOrganization' value='yes' groupValue=isOrganization}}
+      <label for="isOrganization">{{t 'organization'}}</label>
+      {{radio-button id='isPrivate' name='isOrganization' value='no' groupValue=isOrganization}}
+      <label for="isPrivate">{{t 'private'}}</label>
+    </div>
+
+    <div {{bind-attr class=":form-group errors.email:field-with-errors"}}>
+      {{input value=email class="form-control" autocapitalize="off" autocorrect="off" placeholderTranslation='email'}}
+    </div>
+
+    {{#if organizationEnabled}}
+    <div {{bind-attr class=":form-group errors.organzation:field-with-errors"}}>
+      {{input value=organization class="form-control" autocapitalize="off" autocorrect="off" placeholderTranslation='organization'}}
+    </div>
+    {{/if}}
+
+    <div class="form-group">
+      {{view 'selectize-simple-array'
+            classes="form-control"
+            promptTranslation="select_language"
+            contentBinding="controller.availableLocales"
+            optionLabelPath='content.label'
+            optionValuePath='content.value'
+            valueBinding='controller.selectedLocale'}}
+    </div>
+
+    <div {{bind-attr class=":form-group errors.termsAccepted:field-with-errors :agree-policies"}}>
+      <div class="checkbox check-success">
+        {{input type="checkbox" checked=termsAccepted id="agree-policies"}}
+        <label for="agree-policies">{{t 'agree_policies'}}</label>
+      </div>
+    </div>
+
+    <div class="form-group">
+    <h1>h {{controller.selectedLocale}}</h1>
+    </div>
+
+    <div class="form-group">
+      <input type="submit" class="btn btn-primary form-control" {{translateAttr value='register'}}>
+    </div>
+
+    <div class="form-group center">
+      {{#link-to 'sessions.index'}}{{t 'back_to_login'}}{{/link-to}}
+    </div>
+
+  </form>
+</div>
