@@ -15,6 +15,7 @@ require "centry/timestamps"
 require "centry/mongoid"
 require "centry/mailer"
 require "centry/config"
+require "centry/api"
 
 module Centry
 
@@ -24,19 +25,6 @@ module Centry
   #
   def self.env
     (ENV['RACK_ENV'] || 'development').to_sym
-  end
-
-  def self.application
-    Rack::Builder.new do
-      use RequestStore::Middleware
-      use Rack::Cors do
-        allow do
-          origins '*'
-          resource '*', headers: :any, methods: [:get, :post, :options]
-        end
-      end
-      run Centry::API::Root
-    end
   end
 
   def self.logger

@@ -24,6 +24,15 @@ module Centry
       nil
     end
 
+    def self.find_static_file( filename )
+      @@paths.each do |dir|
+        Dir.glob( "#{dir}/../public/**/*" ).each do |file|
+          return file if file.split('public').last == filename
+        end
+      end
+      nil
+    end
+
     def self.register_path( path )
       raise "invalid path #{path}" unless File::exists?(path)
       @@paths << Pathname.new(path).realpath.to_s
@@ -49,7 +58,6 @@ module Centry
 
     def self.register_assets_paths( dir )
       assets_path = File::join( dir, 'assets' )
-      return unless File::exists? assets_path
       Centry.assets << File::join( assets_path, '/javascripts' )
       Centry.assets << File::join( assets_path, '/stylesheets' )
       Centry.assets << File::join( assets_path, '/images' )
