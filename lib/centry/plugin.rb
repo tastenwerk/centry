@@ -11,8 +11,17 @@ module Centry
         end
         self.require_api_root( dir )
         self.register_mailer_paths( dir )
-        self.register_assets_paths( dir )
+        self.register_assets_paths( dir ) if Centry.respond_to?(:assets)
       end
+    end
+
+    def self.find_view( viewname )
+      @@paths.each do |dir|
+        Dir.glob( "#{dir}/{views}/**/*.erb" ).each do |file|
+          return file if File::basename(file) == viewname
+        end
+      end
+      nil
     end
 
     def self.register_path( path )
@@ -41,9 +50,9 @@ module Centry
     def self.register_assets_paths( dir )
       assets_path = File::join( dir, 'assets' )
       return unless File::exists? assets_path
-      Centry.Assets << File::join( assets_path, '/javascripts' )
-      Centry.Assets << File::join( assets_path, '/stylesheets' )
-      Centry.Assets << File::join( assets_path, '/images' )
+      Centry.assets << File::join( assets_path, '/javascripts' )
+      Centry.assets << File::join( assets_path, '/stylesheets' )
+      Centry.assets << File::join( assets_path, '/images' )
     end
 
   end
