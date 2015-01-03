@@ -109,7 +109,7 @@ class User
     elsif RequestStore.store[:organization_id] && org_id = RequestStore.store[:organization_id]
       org = Organization.find( org_id )
     end
-    organizations << org if org && !organizations.find( org.id )
+    self.organizations << org if org && !organizations.find( org.id )
   end
 
   def avatar_thumb

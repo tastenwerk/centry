@@ -93,7 +93,7 @@ module Centry
         params do
           requires :email, regexp: /.+@.+/
           requires :password, regexp: /(?=.*[\w0-9])(?=.*[a-z])(?=.*[A-Z]).{6,}/
-          optional :organization
+          optional :organization, default: 'private'
           optional :username
         end
         post '/signup', root: false do
@@ -104,6 +104,7 @@ module Centry
             return error!('EmailExists',409)
           end
           user = User.create( email: params.email, password: params.password, username: params.username )
+          organization = Organization.create( name: params.organization, users: [ user ], owner: user )
           return error!(user.errors.full_messages,422) unless user
           return error!(UserMailerError,500) unless UserMailer.signup( user, base_url ).deliver_now
           { confirmation_key: user.confirmation_key, id: user.id.to_s }

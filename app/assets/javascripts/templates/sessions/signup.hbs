@@ -27,6 +27,13 @@
     </div>
     {{/if}}
 
+    <div {{bind-attr class=":password-group :form-group errors.password:field-with-errors"}}>
+      {{input type="password" value=password class="form-control" autocapitalize="off" autocorrect="off" placeholderTranslation='password'}}
+      <div class="progress pw-progress">
+        <div {{bind-attr class=":progress-bar pwStrengthColor"}} role="progressbar" {{bind-attr style=pwStrength}}></div>
+      </div>
+    </div>
+
     <div class="form-group">
       {{view 'selectize-simple-array'
             classes="form-control"

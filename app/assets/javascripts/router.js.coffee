@@ -7,4 +7,4 @@ Centry.Router.map ->
     @route 'logout'
     @route 'forgot_password'
     @route 'signup'
-    @route 'enter_confirmation_key'
+    @route 'confirm', path: 'confirm/:id/:key'

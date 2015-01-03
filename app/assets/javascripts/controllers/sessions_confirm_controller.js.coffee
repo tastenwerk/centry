@@ -1,7 +1,7 @@
-Centry.SessionsEnterConfirmationCodeController = Ember.ObjectController.extend Centry.Validations,
+Centry.SessionsConfirmController = Ember.ObjectController.extend Centry.Validations,
 
   validate:
-    code:
+    confirmation_code:
       required:
         message: Em.I18n.t('errors.code_required')
 
@@ -9,7 +9,7 @@ Centry.SessionsEnterConfirmationCodeController = Ember.ObjectController.extend C
 
     checkCode: ->
       return unless @isValid()
-      Ember.$.post("#{Centry.get('apiHost')}/users/check_code", @getProperties('code'))
+      Ember.$.post("#{Centry.get('apiHost')}/users/#{@get('content.id')}/confirm", @get('content').getProperties('confirmation_code', 'confirmation_key'))
         .then (res)=>
           @transitionToRoute 'dashboard'
         .fail (err)=>

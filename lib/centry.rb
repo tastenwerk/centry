@@ -20,6 +20,8 @@ require "centry/api"
 
 module Centry
 
+  @@logger = Logger.new(STDOUT)
+
   #
   # return centry env
   # defaults to RACK_ENV
@@ -29,11 +31,12 @@ module Centry
   end
 
   def self.logger
-    @@logger || Logger.new(STDOUT)
+    @@logger
   end
 
 end
 
+Centry::Config.load_application_config
 Centry::Plugin.register_path File::dirname( __FILE__ )+'/../app'
 Centry::Plugin.load_all
 

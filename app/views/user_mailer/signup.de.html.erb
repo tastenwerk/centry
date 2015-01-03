@@ -6,7 +6,11 @@
   </div>
   <div class="content">
     <h1>Hallo!</h1>
-    <p>Dein Konto auf caminio wurde soeben eröffnet. Vielleicht hast du bereits begonnen, dich umzusehen, vielleicht hast du auch ein paar Fragen. Anbei ein paar Tipps und Hinweise zur Verwendung von caminio.</p>
+    <p>Du hast dich erfolgreich auf <%= Centry.config.site.name %> registriert. Um dein Konto zu aktivieren, musst du noch folgenden Code in das Registrationsformular eintragen:</p>
+
+    <div style="text-align: center">
+      <span class="btn btn-primary"><%= @user.confirmation_code %></span>
+    </div>
 
     <p>
     Falls du Hilfe bei der Anwendung brauchst, kannst du dich gerne mit uns in Verbindung setzen. Du erreichst uns unter: <a href="mailto:support@tastenwerk.com">support@tastenwerk.com</a>
