@@ -3,14 +3,15 @@
 <head>
 
   <title>centry</title>
-  <link href="/assets/centry.css" rel="stylesheet">
+  <meta charset="utf-8">
+  <%= stylesheet_tag 'centry' %>
   <link rel="shortcut icon" href="/favicon.ico" />
 
   <script type="text/javascript">
     window.CENTRY_ENGINE_VERSION = '<%= Centry::VERSION %>';
     window.LANG = '<%= @locale %>';
   </script>
-  <script type="text/javascript" src="/assets/centry.js.coffee"></script>
+  <%= javascript_tag 'centry' %>
 
 </head>
 

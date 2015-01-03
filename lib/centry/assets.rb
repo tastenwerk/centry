@@ -1,4 +1,5 @@
 require 'sprockets'
+require 'sprockets-helpers'
 require 'handlebars_assets'
 require 'coffee-script'
 
@@ -15,6 +16,12 @@ module Centry
     def initialize
       @assets = Sprockets::Environment.new
       @assets.append_path HandlebarsAssets.path
+      Sprockets::Helpers.configure do |config|
+        config.environment = @assets
+        config.prefix      = '/assets'
+        config.digest      = false
+        config.debug       = ( Centry.env == :development )
+      end
     end
 
     def <<(dir)

@@ -39,6 +39,8 @@ module Centry
 
     class ERBContext
 
+      include Sprockets::Helpers
+      
       def initialize(hash)
         hash.each_pair do |key, value|
           instance_variable_set('@' + key.to_s, value)
