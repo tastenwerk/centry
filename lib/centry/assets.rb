@@ -2,6 +2,8 @@ require 'sprockets'
 require 'handlebars_assets'
 require 'coffee-script'
 
+HandlebarsAssets::Config.ember = true
+
 module Centry
 
   def self.assets

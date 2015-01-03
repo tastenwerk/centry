@@ -1,9 +1,20 @@
-<html>
+<!DOCTYPE html>
+<html lang="<%= @locale %>">
 <head>
-<title>centry</title>
-<script type="text/javascript" src="/assets/centry.js.coffee"></script>
-<link href="/assets/centry.css" rel="stylesheet">
+
+  <title>centry</title>
+  <link href="/assets/centry.css" rel="stylesheet">
+  <link rel="shortcut icon" href="/favicon.ico" />
+
+  <script type="text/javascript">
+    window.CENTRY_ENGINE_VERSION = '<%= Centry::VERSION %>';
+    window.LANG = '<%= @locale %>';
+  </script>
+  <script type="text/javascript" src="/assets/centry.js.coffee"></script>
+
 </head>
-<body>
+
+<body class="authorization-required">
 </body>
+
 </html>

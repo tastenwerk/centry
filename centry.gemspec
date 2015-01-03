@@ -23,6 +23,7 @@ Gem::Specification.new do |spec|
   spec.add_dependency "roadie", "~> 3.0"
   spec.add_dependency "actionmailer", "~> 4.2"
   spec.add_dependency "sprockets", "~> 2.12"
+  spec.add_dependency "sprockets-helpers", "~> 1.1"
   spec.add_dependency "handlebars_assets", "~> 0.18"
   spec.add_dependency "coffee-script", "~> 2.3"
 

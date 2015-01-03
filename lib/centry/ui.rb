@@ -1,4 +1,5 @@
 require 'erb'
+require 'hashie'
 require 'centry/assets'
 
 module Centry
@@ -16,8 +17,10 @@ module Centry
 
   module View
 
-    def self.render( filename )
-      ERB.new(File.read(filename)).result(nil)
+    def self.render( filename, context={} )
+      context[:locale] = I18n.locale
+      # context = Hashie::Mash.new(context)
+      ERB.new(File.read(filename)).result( ERBContext.new(context).get_binding )
     end
 
     class FileStreamer
@@ -30,6 +33,20 @@ module Centry
         @file.each(&blk)
       ensure
         @file.close
+      end
+
+    end
+
+    class ERBContext
+
+      def initialize(hash)
+        hash.each_pair do |key, value|
+          instance_variable_set('@' + key.to_s, value)
+        end
+      end
+
+      def get_binding
+        binding
       end
 
     end
