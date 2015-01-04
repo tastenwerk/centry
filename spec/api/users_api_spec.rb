@@ -222,11 +222,36 @@ describe Centry::API::Users do
   describe :signup do
 
     before :each do
-      post "v1/users/signup", email: 'test@example.com', password: 'Test1234'
+      @email_addr = 'test@example.com'
+      post "v1/users/signup", email: @email_addr, password: 'Test1234'
     end
 
-    it "sends an email" do
-      expect(ActionMailer::Base.deliveries.count).to eq(1)
+    describe "sends an email", focus: true do
+
+      let(:email){ ActionMailer::Base.deliveries.last }
+      let(:user){ User.last }
+
+      it "queued" do
+        expect(ActionMailer::Base.deliveries.count).to eq(1)
+      end
+
+      it "subject matches string" do
+        expect( email.subject ).to eq "Your account on centrytest"
+      end
+
+      it "recipients size == 1" do
+        expect( email.to.size ).to eq 1
+      end
+
+      it "matches recipients email address" do
+        expect( email.to.first ).to eq @email_addr
+      end
+
+      it "includes code in body" do
+        puts email.body.to_s
+        expect( email.body.to_s ).to match(/#{user.code}/)
+      end
+
     end
 
     it { expect(last_response.status).to be == 201 }

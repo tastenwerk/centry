@@ -1,4 +1,5 @@
 require 'action_mailer'
+require 'premailer-rails'
 
 module Centry
 
@@ -11,3 +12,6 @@ module Centry
   end
 
 end
+
+Premailer::Rails.register_interceptors
+Premailer::Rails.config.merge!(preserve_styles: true, remove_ids: true, verbose: true)
