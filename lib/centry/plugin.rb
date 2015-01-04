@@ -11,6 +11,7 @@ module Centry
         end
         self.require_api_root( dir )
         self.register_mailer_paths( dir )
+        self.register_mailer_assets_paths( dir )
         self.register_assets_paths( dir ) if Centry.respond_to?(:assets)
         self.register_i18n_paths( dir )
       end
@@ -68,6 +69,12 @@ module Centry
       Centry.assets << File::join( assets_path, '/javascripts' )
       Centry.assets << File::join( assets_path, '/stylesheets' )
       Centry.assets << File::join( assets_path, '/images' )
+    end
+
+    def self.register_mailer_assets_paths( dir )
+      mailer_assets_path = File::join( dir, 'assets', 'mailer' )
+      return unless File::exists? mailer_assets_path
+      Centry::Mailer.register_mailer_assets_path( mailer_assets_path )
     end
 
   end

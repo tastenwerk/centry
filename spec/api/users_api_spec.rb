@@ -132,7 +132,7 @@ describe Centry::API::Users do
       header 'Authorization', "Bearer #{@admin.aquire_api_key.token}"
     end
 
-    describe "update", focus: true do
+    describe "update" do
 
       describe "email" do
 
@@ -223,16 +223,17 @@ describe Centry::API::Users do
 
     before :each do
       @email_addr = 'test@example.com'
+      @deliveries_count = ActionMailer::Base.deliveries.count
       post "v1/users/signup", email: @email_addr, password: 'Test1234'
     end
 
-    describe "sends an email", focus: true do
+    describe "sends an email" do
 
       let(:email){ ActionMailer::Base.deliveries.last }
       let(:user){ User.last }
 
       it "queued" do
-        expect(ActionMailer::Base.deliveries.count).to eq(1)
+        expect(ActionMailer::Base.deliveries.count).to eq( @deliveries_count+1)
       end
 
       it "subject matches string" do
@@ -248,8 +249,7 @@ describe Centry::API::Users do
       end
 
       it "includes code in body" do
-        puts email.body.to_s
-        expect( email.body.to_s ).to match(/#{user.code}/)
+        expect( email.body.to_s ).to match(/#{user.confirmation_code}/)
       end
 
     end
