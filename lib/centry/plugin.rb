@@ -12,6 +12,7 @@ module Centry
         self.require_api_root( dir )
         self.register_mailer_paths( dir )
         self.register_assets_paths( dir ) if Centry.respond_to?(:assets)
+        self.register_i18n_paths( dir )
       end
     end
 
@@ -54,6 +55,12 @@ module Centry
       mailer_path = File::join( dir, 'views' )
       return unless File::exists? mailer_path
       Centry::Mailer.register_view_path( mailer_path )
+    end
+
+    def self.register_i18n_paths( dir )
+      locale_path = File::join( dir, '..', 'config', 'locales' )
+      return unless File::exists? locale_path
+      I18n.load_path << Dir[File::join( locale_path, '*.{rb,yml}').to_s]
     end
 
     def self.register_assets_paths( dir )

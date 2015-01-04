@@ -3,6 +3,8 @@
 require 'i18n'
 require 'i18n/backend/fallbacks'
 
+I18n.backend.load_translations
+
 module Centry
   class UserLocale
     def initialize(app, options = {})

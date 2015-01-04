@@ -93,12 +93,13 @@ module Centry
         params do
           requires :email, regexp: /.+@.+/
           requires :password, regexp: /(?=.*[\w0-9])(?=.*[a-z])(?=.*[A-Z]).{6,}/
-          optional :organization, default: 'private'
+          optional :organization
           optional :username
         end
         post '/signup', root: false do
-          if Organization.where( name: params.organization ).count > 0
-            return error!('OrganizationExists',409)
+          params.organization = 'private' if params.organization.blank?
+          if params.organization != 'private' && Organization.where( name: params.organization ).count > 0
+            return error!({ error: 'OrganizationExists', details: params.organization },409)
           end
           if User.where( email: params.email ).count > 0
             return error!('EmailExists',409)

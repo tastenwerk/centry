@@ -61,7 +61,7 @@ Centry.SessionsSignupController = Ember.ObjectController.extend Centry.Validatio
           if( err.status == 409 )
             @set 'valid', false
             if( json.error == 'EmailExists' )
-              @set 'message', Em.I18n.t('errors.email_exists', @get('content.email'))
+              @set 'message', Em.I18n.t('errors.email_exists', email: @get('content.email'))
               @set 'errors.email', true
             else if( json.error == 'OrganizationExists')
               @set 'message', Em.I18n.t('errors.organization_exists', @get('content.organization'))
