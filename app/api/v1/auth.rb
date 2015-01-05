@@ -18,7 +18,7 @@ module Centry
           requires :password, desc: "the user's password"
         end
         post do
-          present :api_key, authenticate_user, with: Entities::ApiKey
+          present authenticate_user, with: Entities::ApiKey
         end
         
       end

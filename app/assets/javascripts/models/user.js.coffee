@@ -1,9 +1,0 @@
-Centry.User = DS.Model.extend
-  username:             DS.attr 'string'
-  email:                DS.attr 'string'
-  firstname:            DS.attr 'string'
-  lastname:             DS.attr 'string'
-  password:             DS.attr 'string'
-  password_updated_at:  DS.attr 'date'
-  updated_at:           DS.attr 'date'
-  created_at:           DS.attr 'date'

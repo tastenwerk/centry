@@ -39,7 +39,8 @@ module Centry
         get ':id' do
           authenticate!
           error!('InsufficientRights', 403) unless params.id == @token.user_id.to_s || @token.user.is_admin?
-          user = User.where(id: params.id, organization_ids: headers['Organization_id']).first
+          user = User.where(id: params.id, organization_ids: headers['Organization-Id']).first
+          error!('NotFound',404) unless user
           present user, with: Entities::User
         end
 
@@ -126,7 +127,8 @@ module Centry
           error!({ error: 'SavingFailed', details: user.errors.full_messages},500) if user.errors.size > 0
           user = user.reload
           status 200
-          present user.reload, with: Entities::User
+          api_key = user.aquire_api_key
+          present api_key, with: Entities::ApiKey
         end
 
         #

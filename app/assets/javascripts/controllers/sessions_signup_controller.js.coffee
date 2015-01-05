@@ -55,7 +55,11 @@ Centry.SessionsSignupController = Ember.ObjectController.extend Centry.Validatio
       return unless @isValid()
       Ember.$.post("#{Centry.get('apiHost')}/users/signup", @getProperties('email','organization','password'))
         .then (res)=>
-          @transitionToRoute 'sessions.confirm', id: res.id, key: res.confirmation_key
+          @transitionToRoute 'sessions.confirm', 
+            Ember.Object.create
+              id: res.id, 
+              confirmation_key: res.confirmation_key,
+              confirmation_code: ''
         .fail (err)=>
           json = err.responseJSON
           if( err.status == 409 )

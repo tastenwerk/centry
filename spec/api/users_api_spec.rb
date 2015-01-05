@@ -277,7 +277,7 @@ describe Centry::API::Users do
 
     it { expect(last_response.status).to be == 200 }
 
-    it { expect(json).to have_key(:user) }
+    it { expect(json).to have_key(:api_key) }
 
     it { expect(User.first.confirmed?).to be true }
 

@@ -6,6 +6,10 @@ module Centry
               .or( [ { username: params.login }, { email: params.login } ] )
               .first
       return error!('InvalidCredentials',401) unless @current_user && @current_user.authenticate( params.password )
+      RequestStore.store['current_user_id'] = @current_user.id.to_s
+      if @current_user.organizations.first
+        RequestStore.store['organization_id'] ||= @current_user.organizations.first.id.to_s
+      end
       @current_user.aquire_api_key
     end
 

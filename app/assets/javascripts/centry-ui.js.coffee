@@ -12,13 +12,18 @@ moment.locale(LANG)
 
 $.cookie.json = true
 
-Centry.ApplicationStore = DS.Store.extend()
-Centry.ApplicationAdapter = DS.ActiveModelAdapter.extend()
-Centry.ApplicationAdapter.reopen
+Centry.ApplicationAdapter = DS.ActiveModelAdapter.extend
+  namespace: 'api/v1' 
   pathForType: (type)->
     decamelized = Ember.String.decamelize(type)
     Ember.String.pluralize(decamelized)
 
+Centry.ApplicationStore = DS.Store.extend()
+
+Centry.Organization = DS.Model.extend
+  name:             DS.attr 'string'
+  users:            DS.hasMany 'users'
+  
 #
 # User
 #
@@ -30,6 +35,8 @@ Centry.User = DS.Model.extend
   password:         DS.attr 'string'
   password_confirm: DS.attr 'string'
   api_keys:         DS.hasMany 'api_key'
+  role:             DS.attr 'string'
+  organization:     DS.belongsTo 'organization'
 
 #
 # ApiKey
@@ -41,6 +48,8 @@ Centry.ApiKey = DS.Model.extend
 
 Centry.ApiKeyAdapter = DS.LSAdapter.extend
   namespace:    'centry-auth-keys'
+
+Centry.UserAdapter = Centry.ApplicationAdapter.extend()
 
 #
 # ApplicationRoute
@@ -89,7 +98,10 @@ Centry.SessionsController = Ember.Controller.extend
     @_super()
     if Ember.$.cookie('access_token')
       Ember.$.ajaxSetup
-        headers: { 'Authorization': 'Bearer ' + Ember.$.cookie('access_token') }
+        headers: { 'Authorization': 'Bearer ' + Ember.$.cookie('access_token'), 'Organization_id': Ember.$.cookie('organization_id') }
+
+  login: ''
+  password: ''
 
   attemptedTransition: null
 
@@ -114,7 +126,9 @@ Centry.SessionsController = Ember.Controller.extend
       currentUser: null
 
     Ember.$.ajaxSetup
-      headers: { 'Authorization': 'Bearer none' }
+      headers: { 'Authorization': 'Bearer none', 'Organization_id': null }
+
+Centry.SessionsIndexController = Centry.SessionsController.extend
 
   actions:
   
@@ -123,13 +137,13 @@ Centry.SessionsController = Ember.Controller.extend
       attemptedTrans = @get('attemptedTransition')
 
       @setProperties
-        username_or_email: null,
+        login: null,
         password: null
 
       Ember.$.post('/api/v1/auth', data)
         .then (response)=>
           Ember.$.ajaxSetup
-            headers: { 'Authorization': 'Bearer ' + response.api_key.token }
+            headers: { 'Authorization': 'Bearer ' + response.api_key.token, 'Organization_id': response.api_key.organization_id }
           key = @get('store').createRecord('apiKey', response.api_key )
           @store.find('user', response.api_key.user_id)
             .then (user)=>
@@ -145,7 +159,7 @@ Centry.SessionsController = Ember.Controller.extend
                 @set('attemptedTransition', null)
               else
                 @transitionToRoute 'index'
-        .catch (error)->
+        .fail (error)->
           if error.status is 401
             alert("wrong user or password, please try again")
 

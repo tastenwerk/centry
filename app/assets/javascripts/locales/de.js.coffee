@@ -29,5 +29,6 @@ Em.merge Em.I18n.availableTranslations.de,
     password_policies_not_fulfilled: 'Das Passwort entspricht nicht den Kritierien:<br><ul><li>mindestens 6 Zeichen lang</li><li>Enthält mindestens einen Großbuchstaben</li><li>Enthält midnestens einen Kleinbuchstaben</li><li>Enthält mindestens eine Zahl oder ein Sonderzeichen</li></ul>'
     accept_terms: 'Du musst unsere Geschäftsbedingungen akzeptieren, um fortzufahren'
     invalid_code: 'Der angegebene Code ist falsch'
+    key_invalid_or_expired: 'Der Schlüssel ist falsch oder abgelaufen. Bitte wiederhole den Vorgang'
     code_required: 'Bitte gib den Code ein, der dir in der Email zugesandt wurde'
     unkown: 'Unbekannter Fehler! Bitte kontaktiere den Support'
