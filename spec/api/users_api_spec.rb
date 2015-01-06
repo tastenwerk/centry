@@ -31,6 +31,7 @@ describe Centry::API::Users do
       @user = create(:user)
       @url = "v1/users/#{@user.id}"
       header 'Authorization', "Bearer #{@user.aquire_api_key.token}"
+      header 'Organization-id', @user.organizations.first
     end
 
     it "returns a user json" do
@@ -102,13 +103,13 @@ describe Centry::API::Users do
 
     end
 
-    describe "no organization" do
+    describe "private organization" do
 
       before :each do 
         post url, post_attr
       end
 
-      it{ expect( json.user.organization_ids.size ).to be == 0 }
+      it{ expect( json.user.organization_ids.size ).to be == 1 }
 
     end
 

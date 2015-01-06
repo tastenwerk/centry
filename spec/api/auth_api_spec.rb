@@ -51,7 +51,7 @@ describe Centry::API::Auth do
 
     describe "token length" do
   
-      it{ expect( json['api_key']['token'].size ).to eq(128) }
+      it{ expect( json['api_key']['token'].size ).to eq(32) }
 
     end
 

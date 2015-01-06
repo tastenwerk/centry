@@ -37,7 +37,8 @@ class User
   field :api_user, type: Boolean
   field :expires_at, type: DateTime
 
-  has_and_belongs_to_many :organizations, inverse_of: :users
+  has_and_belongs_to_many :organizations
+
   has_many :api_keys
   # embeds_many :user_access_rules
 
@@ -57,7 +58,7 @@ class User
 
   before_validation :set_password_if_blank, :set_confirmation_code, on: :create
   before_create :create_membership_for_organization
-  # after_create :find_or_create_organization 
+  after_create :find_or_create_organization 
 
   # serialize :id, :username, :password, :email, :firstname, :lastname
 
@@ -91,9 +92,9 @@ class User
     self.confirmation_code.nil?
   end
 
-  def organization_id=(org_id)
-    @organization_id = org_id
-  end
+  # def organization_id=(org_id)
+  #   @organization_id = org_id
+  # end
 
   # def use_organization(org_id)
   #   org_id = (org_id.is_a?(String) ? org_id : org.id )
@@ -116,9 +117,9 @@ class User
     avatar.url(:thumb)
   end
 
-  def find_or_create_organization 
-    return organizations.first if organizations.where(name: 'private').first
-    Organization.create name: 'private', owner_id: id, user_ids: [id]
+  def find_or_create_organization
+    return organizations.first if organizations.count > 0
+    organizations.create name: 'private'
   end
 
   def set_password_if_blank
@@ -127,7 +128,7 @@ class User
   end
 
   def set_confirmation_code
-    self.confirmation_code = SecureRandom.random_number(10000).to_s
+    self.confirmation_code =  1_000 + Random.rand(10_000 - 1_000)
     self.confirmation_code_expires_at = 10.minutes.from_now
     self.confirmation_key = SecureRandom.hex
   end

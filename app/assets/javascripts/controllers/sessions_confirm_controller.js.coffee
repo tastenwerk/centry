@@ -13,15 +13,14 @@ Centry.SessionsConfirmController = Ember.ObjectController.extend Centry.Validati
       return unless @isValid()
       Ember.$.post("#{Centry.get('apiHost')}/users/#{@get('content.id')}/confirm", @getProperties('confirmation_code', 'confirmation_key'))
         .then (response)=>
+          Ember.$.ajaxSetup
+            headers: { 'Authorization': 'Bearer ' + response.api_key.token, 'Organization_id': response.api_key.organization_id }
           @store.find('user', @get('id'))
             .then (user)=>
-              controllers.get('sessions').setProperties
+              @get('controllers.sessions').setProperties
                 token: response.api_key.token
-                currentUser: user
-              key = @get('store').createRecord('apiKey', response.api_key )
-              key.set('user', user)
-              key.save()
-              # user.get('api_keys').content.push(key)
+                organizationId: response.api_key.organization_id
+                userId: user.get('id')
               @transitionToRoute 'accounts.mine'
         .fail (err)=>
           json = err.responseJSON

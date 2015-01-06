@@ -2,6 +2,8 @@ de:
   user_mailer:
     signup: 
       subject: "Dein Konto auf %{site_name}"
+    reset_pwd:
+      subject: "Passwort zurücksetzen auf %{site_name}"
   mongoid:
     errors:
       messages:

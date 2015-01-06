@@ -64,9 +64,42 @@ module Centry
           authenticate!
           require_admin!
           user = User.new( declared( params )[:user] )
-          user.organization_id = params.organization_id if current_user.is_admin?
+          if current_user.is_admin? && params.organization_id && organization = Organization.find(params.organization_id)
+            user.organizations << organization
+          end
           error!({ error: 'SavingFailed', details: user.errors.full_messages}, 422) unless user.save
           present user, with: Entities::User
+        end
+
+        desc "send the user a link to reset their password"
+        params do
+          requires :email
+        end
+        post '/reset_password_request' do
+          user = User.find_by( email: params.email )
+          error!('EmailAddressUnknown', 404) unless user
+          user.gen_confirmation_key!
+          return error!('UserMailerError',500) unless UserMailer.reset_password( user, base_url ).deliver_now
+          {}
+        end
+
+        desc "resets the password for the user"
+        params do
+          requires :confirmation_key
+          requires :password
+        end
+        post '/:id/reset_password' do
+          user = User.find params.id
+          error!('UserNotFound',404) unless user
+          error!('UserNotFound',404) unless user.confirmation_key == params.confirmation_key
+          error!('UserNotFound',404) if user.confirmation_key_expires_at < Time.now
+          user.password = params.password
+          user.confirmation_key = nil
+          user.confirmation_key_expires_at = nil
+          user.confirmation_code = nil
+          error!({ error: 'SavingUserFailed', details: user.errors.full_messages.inspect},500) unless user.save
+          api_key = user.api_keys.create organization_id: user.organizations.first.id.to_s
+          present api_key, with: Entities::ApiKey
         end
 
         #
@@ -98,15 +131,14 @@ module Centry
           optional :username
         end
         post '/signup', root: false do
-          params.organization = 'private' if params.organization.blank?
-          if params.organization != 'private' && Organization.where( name: params.organization ).count > 0
+          if !params.organization.blank? && Organization.where( name: params.organization ).count > 0
             return error!({ error: 'OrganizationExists', details: params.organization },409)
           end
           if User.where( email: params.email ).count > 0
             return error!('EmailExists',409)
           end
           user = User.create( email: params.email, password: params.password, username: params.username )
-          organization = Organization.create( name: params.organization, users: [ user ], owner: user )
+          user.organizations.create!( name: params.organization ) unless params.organization.blank?
           return error!(user.errors.full_messages,422) unless user
           return error!(UserMailerError,500) unless UserMailer.signup( user, base_url ).deliver_now
           { confirmation_key: user.confirmation_key, id: user.id.to_s }
@@ -125,9 +157,8 @@ module Centry
           return error!('InvalidKey',409) unless user
           user.update_attributes( confirmation_key: nil, confirmation_code: nil, confirmation_key_expires_at: nil )
           error!({ error: 'SavingFailed', details: user.errors.full_messages},500) if user.errors.size > 0
-          user = user.reload
           status 200
-          api_key = user.aquire_api_key
+          api_key = user.api_keys.create organization_id: user.organizations.first.id.to_s
           present api_key, with: Entities::ApiKey
         end
 

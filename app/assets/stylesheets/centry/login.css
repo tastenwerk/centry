@@ -38,7 +38,15 @@
 }
 
 .login-wrap .alert{
-  margin: 0;
+  margin: 0 0 20px;
+}
+
+.login-wrap .confirmation-code{
+  font-size: 40px;
+  margin: auto;
+  width: 4em;
+  text-align: center;
+  font-weight: 700;
 }
 
 .login-wrap .password-group{

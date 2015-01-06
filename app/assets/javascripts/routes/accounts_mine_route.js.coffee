@@ -1,3 +1,3 @@
 Centry.AccountsMineRoute = Centry.AuthenticatedRoute.extend
-  model: ->
-    @controllerFor('sessions').get('currentUser')
+  model: (params)->
+    @controllerFor('application').get('currentUser')

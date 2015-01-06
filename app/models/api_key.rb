@@ -15,11 +15,12 @@ class ApiKey
   private
 
   def setup_organization
+    return if organization_id
     self.organization_id = RequestStore.store['organization_id']
   end
 
   def setup_token
-    self.token = SecureRandom.hex(64)
+    self.token = SecureRandom.hex
     setup_token if self.class.where( token: self.token ).first
   end
 

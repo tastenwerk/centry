@@ -3,8 +3,8 @@
 # language
 window.LANG = $('html').attr('lang')
 
-Ember.I18n.locale = LANG
-Ember.I18n.translations = Ember.I18n.availableTranslations[LANG]
+Ember.I18n.locale = (Ember.$.cookie('locale') || LANG).replace(/\"/g,'')
+Ember.I18n.translations = Ember.I18n.availableTranslations[Ember.I18n.locale]
 # inject <attr>Translation into {{input }} helper
 Ember.TextField.reopen(Ember.I18n.TranslateableAttributes)
 
@@ -13,7 +13,7 @@ moment.locale(LANG)
 $.cookie.json = true
 
 Centry.ApplicationAdapter = DS.ActiveModelAdapter.extend
-  namespace: 'api/v1' 
+  namespace: 'api/v1'
   pathForType: (type)->
     decamelized = Ember.String.decamelize(type)
     Ember.String.pluralize(decamelized)
@@ -22,7 +22,7 @@ Centry.ApplicationStore = DS.Store.extend()
 
 Centry.Organization = DS.Model.extend
   name:             DS.attr 'string'
-  users:            DS.hasMany 'users'
+  users:            DS.hasMany 'users', inverse: 'organizations'
   
 #
 # User
@@ -37,6 +37,10 @@ Centry.User = DS.Model.extend
   api_keys:         DS.hasMany 'api_key'
   role:             DS.attr 'string'
   organization:     DS.belongsTo 'organization'
+  organizations:    DS.hasMany 'organizations'
+  isAdmin:          (->
+    @get('role') == 'admin'
+  ).property 'role'
 
 #
 # ApiKey
@@ -52,21 +56,26 @@ Centry.ApiKeyAdapter = DS.LSAdapter.extend
 Centry.UserAdapter = Centry.ApplicationAdapter.extend()
 
 #
-# ApplicationRoute
-#
-Centry.ApplicationRoute = Ember.Route.extend
-  actions:
-    logout: ->
-      @controllerFor('sessions').reset()
-      @transitionTo('sessions')
-
-#
 # AuthenticatedRoute
 #
 Centry.AuthenticatedRoute = Ember.Route.extend
+  init: ->
+    @_super()
+    if Ember.$.cookie('access_token')
+      Ember.$.ajaxSetup
+        headers: { 'Authorization': 'Bearer ' + Ember.$.cookie('access_token'), 'Organization_id': Ember.$.cookie('organization_id') }
+
   beforeModel: (transition)->
-    if Ember.isEmpty @controllerFor('sessions').get('token')
-      @redirectToLogin(transition)
+    userId = Ember.$.cookie('user_id')
+    unless userId
+      @controllerFor('sessions').setProperties( token: null, userId: null )
+      return @redirectToLogin(transition)
+    @store.find 'user', userId
+      .then (user)=>
+        @redirectToLogin(transition) unless user
+      .catch (error)=>
+        @controllerFor('sessions').reset()
+        @transitionTo 'sessions'
 
   redirectToLogin: (transition)->
     @controllerFor('sessions').set('attemptedTransition', transition)
@@ -88,47 +97,56 @@ Centry.SessionsRoute = Ember.Route.extend
 
   beforeModel: (transition)->
     return if Ember.isEmpty(@controllerFor('sessions').get('token'))
-    @transitionTo '/index'
+    @transitionTo 'accounts.mine'
 
 #
 # SessionsController
 #
 Centry.SessionsController = Ember.Controller.extend
-  init: ->
-    @_super()
-    if Ember.$.cookie('access_token')
-      Ember.$.ajaxSetup
-        headers: { 'Authorization': 'Bearer ' + Ember.$.cookie('access_token'), 'Organization_id': Ember.$.cookie('organization_id') }
 
   login: ''
   password: ''
 
+  availableLocales: [{ label: 'Deutsch', value: 'de'}, { label: 'English', value: 'en' }]
+  selectedLocale: Ember.I18n.locale
+  observeSelectedLocale: (->
+    return unless @get('selectedLocale')
+    Ember.$.cookie 'locale', @get('selectedLocale')
+    Em.I18n.locale = @get('selectedLocale')
+    location.reload()
+  ).observes 'selectedLocale'
+
   attemptedTransition: null
 
-  token: Ember.$.cookie('access_token'),
+  token: Ember.$.cookie('access_token')
 
-  currentUser: Ember.$.cookie('auth_user'),
+  userId: Ember.$.cookie('user_id')
 
   tokenChanged: (->
     if Ember.isEmpty(@get('token'))
       Ember.$.removeCookie('access_token')
-      Ember.$.removeCookie('auth_user')
+      Ember.$.removeCookie('user_id')
+      Ember.$.removeCookie('organization_id')
     else
       Ember.$.cookie('access_token', @get('token'))
-      Ember.$.cookie('auth_user', @get('currentUser'))
-  ).observes 'token'
+      Ember.$.cookie('user_id', @get('userId'))
+      Ember.$.cookie('organization_id', @get('organizationId'))
+  ).observes 'token', 'userId'
 
   reset: ->
     @setProperties
       login: null
       password: null
       token: null
-      currentUser: null
-
+      userId: null
+      organizationId: null
+    
     Ember.$.ajaxSetup
       headers: { 'Authorization': 'Bearer none', 'Organization_id': null }
 
 Centry.SessionsIndexController = Centry.SessionsController.extend
+
+  needs: ['sessions']
 
   actions:
   
@@ -144,15 +162,15 @@ Centry.SessionsIndexController = Centry.SessionsController.extend
         .then (response)=>
           Ember.$.ajaxSetup
             headers: { 'Authorization': 'Bearer ' + response.api_key.token, 'Organization_id': response.api_key.organization_id }
-          key = @get('store').createRecord('apiKey', response.api_key )
+          # @get('store').find('apiKey').forEach (apiKey)-> apiKey.destroyRecord()
+          # key = @get('store').createRecord('apiKey', response.api_key )
+          @get('controllers.sessions').set('token', response.api_key.token)
+          @get('controllers.sessions').set('organizationId', response.api_key.organization_id)
           @store.find('user', response.api_key.user_id)
             .then (user)=>
-              @setProperties
-                token: response.api_key.token
-                currentUser: user
-              key.set('user', user)
-              key.save()
-              user.get('apiKeys').content.push(key)
+              @get('controllers.sessions').set('userId', user.get('id'))
+              # key.set('user', user)
+              # key.save()
               
               if attemptedTrans
                 attemptedTrans.retry()
@@ -163,17 +181,23 @@ Centry.SessionsIndexController = Centry.SessionsController.extend
           if error.status is 401
             alert("wrong user or password, please try again")
 
+  
 #
 # ApplicationController
 #
 Centry.ApplicationController = Ember.Controller.extend
   needs:  ['sessions']
-  
+
   currentUser: Em.computed ->
-    @get('controllers.sessions.currentUser')
-  .property 'controllers.sessions.currentUser'
+    @store.getById 'user', @get('controllers.sessions.userId')
+  .property 'controllers.sessions.userId'
 
   isAuthenticated: Em.computed ->
-    !Ember.isEmpty @get('controllers.sessions.currentUser')
-  .property 'controllers.sessions.currentUser'
+    !!@get('currentUser')
+  .property 'controllers.sessions.token', 'controllers.sessions.userId'
+
+  actions:
+    logout: ->
+      @get('controllers.sessions').reset()
+      @transitionToRoute 'sessions'
 

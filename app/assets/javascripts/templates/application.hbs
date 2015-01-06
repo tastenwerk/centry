@@ -2,14 +2,15 @@
   <div class="top-pane">
     <a href="#" class="logo pull-left">
       <img src="/favicon.png" class="logo-img">
-      <img class="logo-text" src="/assets/centry-text_140x37.png">
     </a>
-    <div class="close pull-right">&times;</div>
+    <div class="close pull-right" {{action 'logout'}}>&times;</div>
   </div>
   <div class="menu-pane">
-    <a href="#">Allgemein</a>
-    <a href="#">Privatsphaere</a>
-    <a href="#">Benachrichtigungen</a>
+    {{#link-to 'accounts.mine'}}{{t 'account.general'}}{{/link-to}}
+    {{#link-to 'accounts.privacy'}}{{t 'account.privacy'}}{{/link-to}}
+    {{#if currentUser.isAdmin}}
+    {{#link-to 'accounts.admin'}}{{t 'account.admin'}}{{/link-to}}
+    {{/if}}
   </div>
   <div class="main-wrap">
     {{outlet}}
