@@ -4,6 +4,9 @@ module Centry
 
     class Organizations < Grape::API
 
+      include Centry::API::Container
+      centry_mountpoint :api
+      
       version 'v1', using: :path
 
       namespace 'organizations' do

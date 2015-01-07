@@ -3,7 +3,10 @@ module Centry
   module API
 
     class Auth < Grape::API
-
+  
+      include Centry::API::Container
+      centry_mountpoint :api
+      
       helpers Centry::AuthHelper
 
       version 'v1', using: :path

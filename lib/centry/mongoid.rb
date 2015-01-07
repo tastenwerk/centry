@@ -1,3 +1,6 @@
+require "centry/userstamps"
+require "centry/timestamps"
+
 module Centry
 
   module Mongoid

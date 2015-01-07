@@ -1,7 +1,10 @@
 module Centry::API
   
   class Initial < Grape::API
-
+  
+    include Centry::API::Container
+    centry_mountpoint :api
+      
     prefix '/v1/initial'
 
     #

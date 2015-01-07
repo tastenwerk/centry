@@ -1,3 +1,9 @@
+require 'grape'
+require 'mongoid'
+
+require 'centry/api'
+require "centry/mongoid"
+
 module Centry
 
   class Plugin
@@ -6,10 +12,16 @@ module Centry
 
     def self.load_all
       @@paths.each do |dir|
-        Dir.glob( "#{dir}/{helpers,entities,api,models,mailer}/**/*.rb" ).each do |file|
+        puts "loading path #{dir}"
+        Dir.glob( "#{dir}/{helpers,entities,models,mailer}/**/*.rb" ).each do |file|
           require file
         end
-        self.require_api_root( dir )
+      end
+      @@paths.each do |dir|
+        Dir.glob( "#{dir}/{api}/**/*.rb" ).each do |file|
+          require file
+        end
+        # self.require_api_root( dir )
         self.register_mailer_paths( dir )
         self.register_mailer_assets_paths( dir )
         self.register_assets_paths( dir ) if Centry.respond_to?(:assets)

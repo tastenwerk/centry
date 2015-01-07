@@ -9,6 +9,8 @@ require 'rack/test'
 Bundler.setup
 
 require 'centry'
+require "#{File::dirname(__FILE__)}/support/api"
+
 require 'request_store'
 require 'database_cleaner'
 

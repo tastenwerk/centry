@@ -12,9 +12,8 @@ require "centry/root"
 require "centry/plugin"
 require "centry/userstamps"
 require "centry/timestamps"
-require "centry/mongoid"
 require "centry/mailer"
-require 'centry/i18n'
+require "centry/i18n"
 require "centry/config"
 require "centry/api"
 
