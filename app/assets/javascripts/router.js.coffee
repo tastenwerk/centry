@@ -13,3 +13,5 @@ Centry.Router.map ->
     @route 'mine'
     @route 'privacy'
     @route 'admin'
+    @route 'new'
+    @route 'edit', path: ':id'

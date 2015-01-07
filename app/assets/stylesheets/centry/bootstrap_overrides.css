@@ -379,3 +379,17 @@ input[type="radio"], input[type="checkbox"] {
 .field-with-errors .checkbox.check-success input[type="checkbox"] + label:before {
   background-color: #f2dede;
 }
+
+.dropdown-menu.dropdown-menu-grey{
+  background-color: #eee;
+}
+
+.dropdown-menu.dropdown-menu-grey li{
+  background-color: #eee;
+  font-size: 14px;
+  padding: 0;
+}
+
+.dropdown-menu.dropdown-menu-grey li a.hover-danger:hover{
+  background-color: #d9534f;
+}

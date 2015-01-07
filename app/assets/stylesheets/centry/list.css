@@ -8,15 +8,38 @@ ul.list{
 ul.list li{
   background: #fff;
   margin: 0;
-  padding: 5px;
+  padding: 3px;
+  display: table;
+  table-layout: fixed;
+  width: 100%;
 }
 
 ul.list li > div{
-  display: flex;
-  margin: 5px 10px;
+  margin: auto;
+  display: table-cell;
+}
+
+ul.list.list-header{
+  border: none;
+}
+
+ul.list.list-header li{
+  background: none;
+  color: #999;
+  font-size: 0.9em;
+}
+
+ul.list li > .list-icon .label{
+  border-radius: 0;
+  display: block;
+  font-size: 1em;
+  margin: 3px 5px 3px 0;
+  padding: 0.4em 0.6em 0.5em;
 }
 
 ul.list li > .list-icon{
+  padding: 0 5px;
+  width: 42px;
 }
 
 ul.list li > .list-icon i{
@@ -28,4 +51,9 @@ ul.list li > .list-title{
 }
 
 ul.list li > .list-label{
+}
+
+ul.list li > .list-actions{
+  width: 30px;
+  margin: 0;
 }

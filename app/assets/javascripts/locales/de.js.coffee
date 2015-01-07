@@ -8,6 +8,7 @@ Em.merge Em.I18n.availableTranslations.de,
   lastname: 'Nachname'
   password: 'Passwort'
   login: 'Anmelden'
+  logout: 'Abmelden'
   no_account_yet: 'Noch kein Konto?'
   back_to_login: 'Zurück zum Login'
   signup: 'Kostenlos Registrieren'
@@ -22,8 +23,6 @@ Em.merge Em.I18n.availableTranslations.de,
   continue: 'Weiter'
   register: 'Registrieren'
   username: 'Alias'
-  email: 'Email'
-  organization: 'Organisation'
   private: 'Privat'
   agree_policies: 'Ich bin mit den Allgemeinen Geschäftsbedingungen einverstanden'
   select_language: 'Sprache wählen'
@@ -31,12 +30,21 @@ Em.merge Em.I18n.availableTranslations.de,
   cancel_edit_entry: 'Bearbeiten abbrechen'
   edit_entry: 'Eintrag bearbeiten'
   entry_saved: 'Eintrag gespeichert'
+
+  name: 'Name'
+  created_at: 'Erstellt am'
+  email: 'Email'
+  organization: 'Organisation'
+
   account:
     personal: 'Angaben zur Person'
     contact_info: 'Kontaktinformationen'
     general: 'Allgemein'
     privacy: 'Privatsphäre'
     administration: 'Administration'
+    create_account: 'Konto erstellen'
+    edit: 'Konto bearbeiten'
+    suspend_login: 'Suspendieren (Login verbieten)'
     admin:
       users: 'Konten verwalten'
       organizations: 'Organisationen'

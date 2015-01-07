@@ -6,15 +6,14 @@
   background: none;
 }
 
-.account-admin .new-btn{
-  float: right;
-  margin: 5px 10px;
-}
-
 .account-admin .heading h1{
   color: #1b8fc3;
   font-size: 16px;
   font-weight: 700;
-  margin: 10px 13px;
+  margin: 10px 0;
+}
+
+.account-admin .dropdown-menu.dropdown-menu-grey li{
+  min-width: 230px;
 }
 

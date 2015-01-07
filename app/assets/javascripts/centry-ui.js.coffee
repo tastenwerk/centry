@@ -29,6 +29,15 @@ Centry.OrganizationAdapter = Centry.ApplicationAdapter.extend()
 # User
 #
 Centry.User = DS.Model.extend
+  name:             (->
+    str = ''
+    str += @get('firstname') unless Em.isEmpty(@get('firstname'))
+    str += ' ' if str.length > 0 && !Em.isEmpty(@get('lastname'))
+    str += @get('lastname') unless Em.isEmpty(@get('lastname'))
+    if str.length < 1
+      str += @get('email')
+    str
+  ).property 'firstname', 'lastname', 'username', 'email'
   username:         DS.attr 'string'
   firstname:        DS.attr 'string'
   lastname:         DS.attr 'string'
@@ -201,7 +210,6 @@ Centry.ApplicationController = Ember.Controller.extend
 
   currentOrganization: Em.computed ->
     org = @store.getById 'organization', @get('controllers.sessions.organizationId')
-    console.log org, @get('controllers.sessions.organizationId')
     org
   .property 'controllers.sessions.organizationId'
 
