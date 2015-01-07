@@ -6,7 +6,6 @@ class User
   # include Mongoid::Paperclip
 
   field :username, type: String
-  field :role, type: String, default: 'user'
   field :firstname, type: String
   field :lastname, type: String
   field :email, type: String
@@ -40,6 +39,7 @@ class User
   has_and_belongs_to_many :organizations
 
   has_many :api_keys
+  embeds_many :organization_roles
   # embeds_many :user_access_rules
 
   has_secure_password
@@ -57,8 +57,7 @@ class User
   validates_format_of :email, :with => /@/
 
   before_validation :set_password_if_blank, :set_confirmation_code, on: :create
-  before_create :create_membership_for_organization
-  after_create :find_or_create_organization 
+  # before_create :create_membership_for_organization
 
   # serialize :id, :username, :password, :email, :firstname, :lastname
 
@@ -84,9 +83,28 @@ class User
     api_keys.create
   end
 
-  def is_admin?
-    role == 'admin'
+  def current_organization_id
+    RequestStore.store['organization_id'] || (organizations.size > 0 ? organizations.first.id : nil )
   end
+
+  def current_organization
+    organizations.find( current_organization_id ) if current_organization_id
+  end
+
+  def current_organization_role
+    organization_roles.where( organization_id: current_organization_id ).first
+  end
+  alias_method :role, :current_organization_role
+
+  def is_admin?
+    current_organization_role && current_organization_role.admin?
+  end
+  alias_method :admin, :is_admin?
+
+  def is_editor?
+    current_organization_role && current_organization_role.editor?
+  end
+  alias_method :editor, :is_editor?
 
   def confirmed?
     self.confirmation_code.nil?
@@ -103,23 +121,18 @@ class User
 
   private
 
-  def create_membership_for_organization
-    org = nil
-    if organization = Organization.where( id: @organization_id ).first
-      org = organization
-    elsif RequestStore.store[:organization_id] && org_id = RequestStore.store[:organization_id]
-      org = Organization.find( org_id )
-    end
-    self.organizations << org if org && !organizations.find( org.id )
-  end
+  # def create_membership_for_organization
+  #   org = nil
+  #   if organization = Organization.where( id: @organization_id ).first
+  #     org = organization
+  #   elsif RequestStore.store[:organization_id] && org_id = RequestStore.store[:organization_id]
+  #     org = Organization.find( org_id )
+  #   end
+  #   self.organizations << org if org && !organizations.find( org.id )
+  # end
 
   def avatar_thumb
     avatar.url(:thumb)
-  end
-
-  def find_or_create_organization
-    return organizations.first if organizations.count > 0
-    organizations.create name: 'private'
   end
 
   def set_password_if_blank

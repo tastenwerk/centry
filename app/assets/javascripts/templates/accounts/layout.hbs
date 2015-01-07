@@ -1,5 +1,14 @@
-<div class="overview-wrap">
-  <div class="overview-main overview-main-centered">
-    {{yield}}
+<div class="menu-pane">
+  {{#link-to 'accounts.mine'}}{{t 'account.general'}}{{/link-to}}
+  {{#link-to 'accounts.privacy'}}{{t 'account.privacy'}}{{/link-to}}
+  {{#if controllers.application.currentUser.admin}}
+  {{#link-to 'accounts.admin'}}{{t 'account.administration'}}{{/link-to}}
+  {{/if}}
+</div>
+<div class="main-wrap">
+  <div class="overview-wrap">
+    <div class="overview-main overview-main-centered">
+      {{yield}}
+    </div>
   </div>
 </div>

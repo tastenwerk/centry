@@ -16,6 +16,7 @@ class Organization
 
   # after_save :check_owner_has_full_access
   before_create :setup_fqdn
+  after_create :set_user_organization_role
 
   def access_for_user( user )
     return unless users.find(user.id)
@@ -38,6 +39,12 @@ class Organization
     app_plans.each do |plan|
       access_rules.find_or_create_by( user: owner, can_write: true, can_share: true, can_delete: true, app: plan.app )
     end
+  end
+
+  def set_user_organization_role
+    owner = users.first
+    owner.organization_roles.create organization: self, admin: true, editor: true
+    owner.save
   end
 
 end

@@ -1,0 +1,34 @@
+<section class="account-admin">
+
+  <div class="heading">
+    <button class="btn btn-primary btn-large new-btn">
+      <span class="fa fa-plus"></span>
+    </button>
+    <h1>{{t 'account.admin.organizations'}}</h1>
+    <div class="org-dropdown dropdown">
+      <button class="dropdown-toggle btn" data-toggle="dropdown">
+        {{controllers.application.currentOrganization.name}}
+        <span class="fa fa-angle-down"></span>
+      </button>
+      <ul class="dropdown-menu">
+        {{#each org in controllers.application.currentUser.organizations}}
+        <li><a href="#" {{action 'selectOrganization' org}}>{{org.name}}</a></li>
+        {{/each}}
+      </ul>
+    </div>
+  </div>
+
+  <ul class="list">
+    {{#each user in content}}
+    <li>
+    <div class="list-icon">
+      <label {{bind-attr class=':label user.admin:label-danger user.editor:label-warning'}}>
+        <i class="fa fa-user"></i>
+      </label>
+    </div>
+    <div class="list-title">{{user.name}}</div>
+    <div class="list-date">{{user.created_at}}</div>
+    </li>
+    {{/each}}
+  </div>
+</section>

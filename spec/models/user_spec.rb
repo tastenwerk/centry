@@ -13,16 +13,6 @@ describe User do
 
   end
 
-  describe "organizations" do
-
-    let!(:user){ create(:user) }
-
-    it { expect(user).to respond_to(:organizations) }
-
-    it { expect(user.organizations.size).to eq(1) }
-
-  end
-
   describe "update" do
 
     let!(:user) do
@@ -82,23 +72,44 @@ describe User do
 
   end
 
-  describe "roles" do
+  describe "organizations" do
 
-    let!(:user){ create(:user) }
+    let!(:admin){ user = create(:user); user.organizations.create name: 'test-org'; user.reload }
 
-    describe "defaults to user" do
-    
-      it{ expect( user.role ).to eq('user') }
+    it { expect(admin).to respond_to(:organizations) }
 
-    end
+    it { expect(admin.organizations.size).to eq(1) }
 
-    describe "is_admin?" do
+    describe "roles" do
 
-      let!(:admin){ create(:user, role: 'admin') }
+      describe "defaults to organization the user created" do
 
-      it{ expect( user.is_admin? ).to be false }
+        it{ expect( admin.organization_roles.size ).to be == 1 }
 
-      it{ expect( admin.is_admin? ).to be true }
+      end
+
+      describe "is_admin?" do
+
+        describe "owner" do
+
+          it{ expect( admin.is_admin? ).to be true }
+
+        end
+
+        describe "other user" do
+
+          let!(:user) do
+            user = create(:user, email: 'user@example.com')
+            user.organizations << admin.current_organization
+            user.organization_roles.create organization: admin.current_organization
+            user.reload
+          end
+
+          it{ expect( user.is_admin? ).to be false }
+
+        end
+
+      end
 
     end
 

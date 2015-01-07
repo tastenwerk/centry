@@ -10,7 +10,6 @@ module Centry
 
         helpers Centry::ApplicationHelper
         helpers Centry::AuthHelper
-        helpers Centry::UsersHelper
 
         #
         # GET /
@@ -56,18 +55,24 @@ module Centry
             optional :lastname
             optional :password
             optional :valid_until
-            optional :role, values: ['user','admin'], default: 'user'
           end
           optional :organization_id
+          optional :role, values: ['editor','user','admin'], default: 'user'
         end
         post do
           authenticate!
           require_admin!
+          organization_id = headers['Organization-Id'] || params.organization_id
+          error!('MissingOrganizationId',409) unless organization_id
           user = User.new( declared( params )[:user] )
-          if current_user.is_admin? && params.organization_id && organization = Organization.find(params.organization_id)
-            user.organizations << organization
-          end
           error!({ error: 'SavingFailed', details: user.errors.full_messages}, 422) unless user.save
+          if organization_id && organization = Organization.find(organization_id)
+            user.organizations << organization
+            user.organization_roles.create organization: organization, 
+              admin: params.role == 'admin',
+              editor: /editor|admin/.match(params.role)
+            error!('SavingOrganizationFailed',500) unless user.save
+          end
           present user, with: Entities::User
         end
 
@@ -138,8 +143,12 @@ module Centry
             return error!('EmailExists',409)
           end
           user = User.create( email: params.email, password: params.password, username: params.username )
-          user.organizations.create!( name: params.organization ) unless params.organization.blank?
-          return error!(user.errors.full_messages,422) unless user
+          if params.organization.blank?
+            user.organizations.create!( name: 'private' )
+          else
+            user.organizations.create!( name: params.organization )
+          end
+          return error!(user.errors.full_messages,422) unless user.save
           return error!(UserMailerError,500) unless UserMailer.signup( user, base_url ).deliver_now
           { confirmation_key: user.confirmation_key, id: user.id.to_s }
         end
@@ -172,8 +181,8 @@ module Centry
             optional :username
             optional :firstname
             optional :lastname
-            optional :role, values: ['user','admin'], default: 'user'
           end
+          optional :role, values: ['user','admin','editor']
           optional :organization_id
         end
         put '/:id' do
@@ -181,6 +190,11 @@ module Centry
           user = get_user!
           require_admin_or_current_user!
           user.update_attributes( declared(params)[:user] )
+          if current_user.is_admin? && params.role
+            user_org_role = user.organization_roles.find_or_create_by organization_id: (headers['Organization-Id'] || params.organization_id)
+            user_org_role.update_attributes admin: params.role == 'admin',
+              editor: /editor|admin/.match(params.role)
+          end
           present user.reload, with: Entities::User
         end
 

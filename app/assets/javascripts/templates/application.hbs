@@ -5,16 +5,5 @@
     </a>
     <div class="close pull-right" {{action 'logout'}}>&times;</div>
   </div>
-  <div class="menu-pane">
-    {{#link-to 'accounts.mine'}}{{t 'account.general'}}{{/link-to}}
-    {{#link-to 'accounts.privacy'}}{{t 'account.privacy'}}{{/link-to}}
-    {{#if currentUser.isAdmin}}
-    {{#link-to 'accounts.admin'}}{{t 'account.admin'}}{{/link-to}}
-    {{/if}}
-  </div>
-  <div class="main-wrap">
-    {{outlet}}
-  </div>
-{{else}}
-  {{outlet}}
 {{/if}}
+{{outlet}}

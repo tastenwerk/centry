@@ -24,6 +24,7 @@ Centry.Organization = DS.Model.extend
   name:             DS.attr 'string'
   users:            DS.hasMany 'users', inverse: 'organizations'
   
+Centry.OrganizationAdapter = Centry.ApplicationAdapter.extend()
 #
 # User
 #
@@ -35,12 +36,14 @@ Centry.User = DS.Model.extend
   password:         DS.attr 'string'
   password_confirm: DS.attr 'string'
   api_keys:         DS.hasMany 'api_key'
-  role:             DS.attr 'string'
   organization:     DS.belongsTo 'organization'
   organizations:    DS.hasMany 'organizations'
-  isAdmin:          (->
-    @get('role') == 'admin'
-  ).property 'role'
+  admin:            DS.attr 'boolean', default: false
+  editor:           DS.attr 'boolean', default: false
+  created_at:       DS.attr 'date'
+  updated_at:       DS.attr 'date'
+  last_login_at:    DS.attr 'date'
+
 
 #
 # ApiKey
@@ -49,9 +52,9 @@ Centry.ApiKey = DS.Model.extend
   token:        DS.attr 'string'
   expires_at:   DS.attr 'date'
   user:         DS.belongsTo 'user', async: true
-
-Centry.ApiKeyAdapter = DS.LSAdapter.extend
-  namespace:    'centry-auth-keys'
+#
+# Centry.ApiKeyAdapter = DS.LSAdapter.extend
+#   namespace:    'centry-auth-keys'
 
 Centry.UserAdapter = Centry.ApplicationAdapter.extend()
 
@@ -67,12 +70,14 @@ Centry.AuthenticatedRoute = Ember.Route.extend
 
   beforeModel: (transition)->
     userId = Ember.$.cookie('user_id')
+    orgId = Ember.$.cookie('organization_id')
     unless userId
-      @controllerFor('sessions').setProperties( token: null, userId: null )
+      @controllerFor('sessions').setProperties( token: null, userId: null, organizationId: null )
       return @redirectToLogin(transition)
     @store.find 'user', userId
       .then (user)=>
         @redirectToLogin(transition) unless user
+        @store.find 'organization', orgId
       .catch (error)=>
         @controllerFor('sessions').reset()
         @transitionTo 'sessions'
@@ -121,6 +126,8 @@ Centry.SessionsController = Ember.Controller.extend
   token: Ember.$.cookie('access_token')
 
   userId: Ember.$.cookie('user_id')
+
+  organizationId: Ember.$.cookie('organization_id')
 
   tokenChanged: (->
     if Ember.isEmpty(@get('token'))
@@ -176,7 +183,7 @@ Centry.SessionsIndexController = Centry.SessionsController.extend
                 attemptedTrans.retry()
                 @set('attemptedTransition', null)
               else
-                @transitionToRoute 'index'
+                @transitionToRoute 'accounts.mine'
         .fail (error)->
           if error.status is 401
             alert("wrong user or password, please try again")
@@ -191,6 +198,12 @@ Centry.ApplicationController = Ember.Controller.extend
   currentUser: Em.computed ->
     @store.getById 'user', @get('controllers.sessions.userId')
   .property 'controllers.sessions.userId'
+
+  currentOrganization: Em.computed ->
+    org = @store.getById 'organization', @get('controllers.sessions.organizationId')
+    console.log org, @get('controllers.sessions.organizationId')
+    org
+  .property 'controllers.sessions.organizationId'
 
   isAuthenticated: Em.computed ->
     !!@get('currentUser')

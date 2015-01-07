@@ -28,12 +28,18 @@ Em.merge Em.I18n.availableTranslations.de,
   agree_policies: 'Ich bin mit den Allgemeinen Geschäftsbedingungen einverstanden'
   select_language: 'Sprache wählen'
   save: 'Speichern'
+  cancel_edit_entry: 'Bearbeiten abbrechen'
+  edit_entry: 'Eintrag bearbeiten'
+  entry_saved: 'Eintrag gespeichert'
   account:
     personal: 'Angaben zur Person'
-    reaching_you: 'Wie erreichen wir dich'
+    contact_info: 'Kontaktinformationen'
     general: 'Allgemein'
     privacy: 'Privatsphäre'
-    admin: 'Administration'
+    administration: 'Administration'
+    admin:
+      users: 'Konten verwalten'
+      organizations: 'Organisationen'
   errors:
     email_required: 'Email Adresse erforderlich'
     email_exists: 'Die Email Adresse {{email}} ist schon registriert'

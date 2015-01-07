@@ -73,13 +73,14 @@ describe Centry::API::Users do
   describe "POST /users" do
 
     before :each do
-      @admin = create(:user, role: 'admin')
+      @admin = create(:user)
+      @admin.organizations.create name: 'test-org'
       header 'Authorization', "Bearer #{@admin.aquire_api_key.token}"
     end
 
     let(:url){ 'v1/users' }
     let(:error_400){ 'user is missing, user[email] is missing' }
-    let(:post_attr){ { user: { email: 'test@example.com', username: 'test' } } }
+    let(:post_attr){ { user: { email: 'test@example.com', username: 'test' }, organization_id: @admin.current_organization_id } }
 
     describe "requires" do
 
@@ -113,24 +114,15 @@ describe Centry::API::Users do
 
     end
 
-    describe "with organization" do
-
-      before :each do
-        @org = Organization.create name: 'test-org'
-        post url, { user: { email: 'test@example.com' }, organization_id: @org.id }
-      end
-
-      it { expect( json.user.organization_ids.size ).to be == 1 }
-
-    end
-
   end
 
   describe "PUT /:id" do
 
     before :each do
-      @admin = create(:user, role: 'admin')
+      @admin = create(:user)
+      @admin.organizations.create name: 'test-org'
       header 'Authorization', "Bearer #{@admin.aquire_api_key.token}"
+      header 'organization_id', @admin.current_organization_id
     end
 
     describe "update" do
@@ -154,9 +146,11 @@ describe Centry::API::Users do
   describe "DELETE /:id" do
 
     before :each do
-      @admin = create(:user, role: 'admin')
-      @user = create(:user, email: 'deleteme@example.com')
+      @admin = create(:user)
+      @admin.organizations.create name: 'test-org'
       header 'Authorization', "Bearer #{@admin.aquire_api_key.token}"
+      header 'organization_id', @admin.current_organization_id
+      @user = create(:user, email: 'deleteme@example.com')
       delete "v1/users/#{@user.id}"
     end
 
@@ -273,6 +267,7 @@ describe Centry::API::Users do
 
     before :each do
       @user = create(:user)
+      @user.organizations.create name: 'test-org'
       post "v1/users/#{@user.id}/confirm", confirmation_key: @user.confirmation_key, confirmation_code: @user.confirmation_code
     end
 

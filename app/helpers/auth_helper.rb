@@ -10,6 +10,7 @@ module Centry
       if @current_user.organizations.first
         RequestStore.store['organization_id'] ||= @current_user.organizations.first.id.to_s
       end
+      @current_user.update_attribute(:last_login_at, Time.now)
       @current_user.aquire_api_key
     end
 

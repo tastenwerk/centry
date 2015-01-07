@@ -1,8 +1,10 @@
 Centry.ClickEditFormComponent = Ember.Component.extend
 
-  value: ''
-
-  origValue: ''
+  init: ->
+    @_super()
+    @set('origValue', '')
+    @set('origValue', @get('value')) unless Em.isEmpty(@get('value'))
+    @set('value','') if Em.isEmpty(@get('value'))
 
   editValue: false
 
@@ -16,23 +18,35 @@ Centry.ClickEditFormComponent = Ember.Component.extend
   ).observes 'editValue'
 
   hasChanges: Em.computed ->
-    console.log 'orig', @get('origValue'), 'new', @get('value')
     @get('origValue') != @get('value')
   .property 'origValue', 'value'
 
   valueObserver: (->
-    @set('origValue', @get('value')) unless @get('origValue')
     return if @get('origValue') == @get('value')
   ).observes 'value'
 
-  click: ->
-    other = Centry.get('currentClickEdit') 
-    if other && other != @
-      other.set('editValue',false)
-    @set('editValue', !@get('editValue'))
-    Centry.set('currentClickEdit', @)
+  saveCallback: ->
+    @set('editValue',false)
+    @set('valueSaved', true)
+    Ember.run.later =>
+      @set('valueSaved',false)
+      @set('origValue', @get('value'))
+    , 2000
 
   actions:
 
     saveChanges: ->
-      @get('parentController').send('save')
+      @get('parentController').send('save', @saveCallback, @)
+
+    cancelEdit: ->
+      @set('editValue',false)
+      Centry.get('currentClickEdit', null)
+
+    edit: ->
+      return if @get('editValue')
+      other = Centry.get('currentClickEdit') 
+      if other && other != @
+        other.set('editValue',false)
+      @set('editValue', true)
+      Centry.set('currentClickEdit', @)
+
