@@ -51,7 +51,8 @@ describe Centry::API::Users do
       it{ expect( json.user ).to have_key(:firstname) }
       it{ expect( json.user ).to have_key(:lastname) }
       it{ expect( json.user ).to have_key(:email) }
-      it{ expect( json.user ).to have_key(:role) }
+      it{ expect( json.user ).to have_key(:admin) }
+      it{ expect( json.user ).to have_key(:editor) }
       it{ expect( json.user ).not_to have_key(:password_digest) }
 
     end

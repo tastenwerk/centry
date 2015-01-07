@@ -15,7 +15,6 @@ class ApiKey
   private
 
   def setup_organization
-    puts "having #{organization_id} store: #{RequestStore.store['organization_id']}"
     return if organization_id
     self.organization_id = RequestStore.store['organization_id']
   end
