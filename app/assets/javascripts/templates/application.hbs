@@ -1,9 +1,0 @@
-{{#if isAuthenticated}}
-  <div class="top-pane">
-    <a href="#" class="logo pull-left">
-      <img src="/favicon.png" class="logo-img">
-    </a>
-    <div class="close pull-right" {{action 'logout'}} {{translateAttr title='logout'}}>&times;</div>
-  </div>
-{{/if}}
-{{outlet}}

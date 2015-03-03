@@ -1,0 +1,31 @@
+{
+  "name": "centry",
+  "version": "0.1.0",
+  "description": "flat-file content management system",
+  "private": false,
+  "main": "index.js",
+  "scripts": {
+    "start": "node_modules/coffee-script/bin/coffee index.coffee",
+    "test": "node_modules/mocha/bin/mocha --recursive --compilers coffee:coffee-script/register --bail"
+  },
+  "dependencies": {
+    "bluebird": "^2.9.6",
+    "body-parser": "^1.11.0",
+    "coffee-script": "^1.9.0",
+    "express": "^4.11.2",
+    "express-session": "^1.10.2",
+    "jade": "^1.9.1",
+    "lodash": "^3.1.0",
+    "moment": "^2.9.0",
+    "passport": "^0.2.1",
+    "session-file-store": "0.0.2",
+    "swig": "^1.4.2"
+  },
+  "devDependencies": {},
+  "repository": {
+    "type": "git",
+    "url": "git@git.tastenwerk.com/clients/shot-money.git"
+  },
+  "author": "thorsten zerha 4 TASTENWERK",
+  "license": "MIT"
+}
