@@ -2,11 +2,12 @@
 <html>
 <head>
   <meta charset="utf-8">
-  <title>{% block title %}My Site{% endblock %}</title>
+  <title>{% block title %}centry{% endblock %}</title>
 
   {% block head %}
-  <link rel="stylesheet" href="main.css">
+  <link rel="stylesheet" href="/css/application.css">
   {% endblock %}
+  
 </head>
 <body>
   {% block content %}{% endblock %}

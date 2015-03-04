@@ -12,6 +12,10 @@ fs                    = require 'fs'
 path                  = require 'path'
 join                  = path.join
 
+logger                = require join(__dirname,'lib/logger')
+plugin                = require join(__dirname,'plugin')
+plugin.register()
+
 app = express()
 
 app.use session
@@ -24,18 +28,18 @@ app.use express.static(__dirname + '/public')
 app.use bodyParser.urlencoded({ extended: true })
 
 # view engine settings
-app.engine 'html', swig.renderFile
+app.engine 'html.swig', swig.renderFile
 app.set 'view cache', false
+app.set 'view engine', 'html.swig'
+
+app.set 'views', join(__dirname,'app','views')
 
 swig.setDefaults
   cache: false
 
-app.get '/',
-  (req,res)->
-    res.send 'root ok'
+admin = require join(__dirname,'app','routers','admin')
+app.use '/admin', admin
 
-auth = require join(__dirname,'app','routers','auth')
-app.use '/auth', auth
 # routersDir = join(__dirname,'app','routers')
 # fs.readdirSync routersDir
 #   .forEach (filename)->
@@ -47,4 +51,4 @@ module.exports.start = ->
   server = app.listen settings.port, ->
     host = server.address().address
     port = server.address().port
-    console.log 'centry up at http://%s:%s', host, port
+    logger.info "centry up at http://#{host}:#{port}"
