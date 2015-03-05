@@ -1,17 +1,17 @@
-path          = require 'path'
-_             = require 'lodash'
+path                = require 'path'
+_                   = require 'lodash'
 
-join          = path.join
-basename      = path.basename
-dirname       = path.dirname
+join                = path.join
+basename            = path.basename
 
-caller        = require join( __dirname, 'lib/caller' )
-logger        = require join( __dirname, 'lib/logger' )
+utils               = require join( __dirname, 'lib/utils' )
+getCallerDirname    = utils.getCallerDirname
+logger              = require join( __dirname, 'lib/logger' )
 
 registry = []
 
 module.exports.register = (pluginPath)->
-  pluginPath = pluginPath || dirname(caller().filename)
+  pluginPath = pluginPath || getCallerDirname()
   pluginName = basename(pluginPath, '.coffee')
   registry.push { name: pluginName, path: pluginPath }
   logger.info 'plugin registered: %s', pluginName

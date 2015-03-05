@@ -1,0 +1,24 @@
+{
+  "name": "centry",
+  "version": "0.1.0",
+  "homepage": "https://github.com/tastenwerk/centry",
+  "authors": [
+    "thorsten zerha <thorsten.zerha@tastenwerk.com>"
+  ],
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "bootstrap-material-design": "~0.2.2",
+    "bootstrap": "~3.3.2",
+    "jquery": "~2.1.3",
+    "ember": "~1.9.0",
+    "ember-data": "~1.0.0-beta.15",
+    "handlebars": "~2.0.0"
+  }
+}

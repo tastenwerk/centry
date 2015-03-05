@@ -1,22 +1,16 @@
 <!doctype html>
-<html>
+<html lang="de">
 <head>
   <meta charset="utf-8">
   <title>centry > admin</title>
 
-  {% if env == 'production' %}
-    <link rel="stylesheet" href="/css/application.min.css">
-  {% else %}
-    {% for style in assets.styles %}
-      <link rel="stylesheet" href="/assets{{style}}">
-    {% endfor %}
-  {% endif %}
+  {{ css('centry') }}
+  {{ js('centry') }}
   
 </head>
 <body>
-  {% for style in assets.styles %}
-    <link rel="stylesheet" href="/assets{{style}}">
-  {% endfor %}
+
+  {{ js('templates') }}
 
 </body>
 </html>

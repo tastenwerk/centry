@@ -7,6 +7,7 @@ bodyParser            = require 'body-parser'
 moment                = require 'moment'
 lodash                = require 'lodash'
 swig                  = require 'swig'
+assets                = require 'connect-assets'
 
 fs                    = require 'fs'
 path                  = require 'path'
@@ -25,6 +26,9 @@ app.use session
   saveUninitialized: false
 
 app.use express.static(__dirname + '/public')
+app.use assets
+  paths: [ __dirname+'/app/assets/js', __dirname+'/app/assets/css', __dirname+'/bower_components' ]
+
 app.use bodyParser.urlencoded({ extended: true })
 
 # view engine settings
@@ -36,6 +40,7 @@ app.set 'views', join(__dirname,'app','views')
 
 swig.setDefaults
   cache: false
+  autoescape: false
 
 admin = require join(__dirname,'app','routers','admin')
 app.use '/admin', admin
