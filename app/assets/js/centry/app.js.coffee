@@ -1,5 +1,9 @@
 #= require_self
 #= require ./store
+#= require ./router
+#= require ./locales
+#= require_tree ./routes
+#= require_tree ./controllers
 
 window.Centry = Ember.Application.create
   LOG_TRANSITIONS: true

@@ -26,8 +26,9 @@ app.use session
   saveUninitialized: false
 
 app.use express.static(__dirname + '/public')
+
 app.use assets
-  paths: [ __dirname+'/app/assets/js', __dirname+'/app/assets/css', __dirname+'/bower_components' ]
+  paths: plugin.assetPaths()
 
 app.use bodyParser.urlencoded({ extended: true })
 

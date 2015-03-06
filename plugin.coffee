@@ -1,3 +1,4 @@
+fs                  = require 'fs'
 path                = require 'path'
 _                   = require 'lodash'
 
@@ -19,5 +20,17 @@ module.exports.register = (pluginPath)->
 module.exports.each = (fn)->
   registry.forEach fn
 
-module.exports.map = (fn)->
-  registry.map fn
+module.exports.assetPaths = ->
+  assetPaths = []
+  registry.forEach (plugin)->
+    getPath( plugin, 'js', assetPaths )
+    getPath( plugin, 'css', assetPaths )
+  addApplicationBowerComponentsPath(assetPaths)
+  assetPaths
+
+getPath = (plugin, type, assetPaths)->
+  p = join(plugin.path, "/app/assets/#{type}")
+  assetPaths.push(p) if fs.existsSync( p )
+
+addApplicationBowerComponentsPath = (assetPaths)->
+  assetPaths.push join( process.cwd(), 'bower_components' )

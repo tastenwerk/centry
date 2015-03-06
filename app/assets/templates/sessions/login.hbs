@@ -1,0 +1,32 @@
+<div class="login-wrap">
+
+  <form {{action 'loginUser' on='submit'}} class="card">
+    <input type="submit" class="hide">
+
+    {{#if message}}
+    <div {{bind-attr class=":alert valid:alert-info:alert-danger error:alert-danger"}}>{{{message}}}</div>
+    {{/if}}
+
+    <div class="logo">
+      <i class="mdi-image-filter-vintage"></i> centry login
+    </div>
+
+    <div class="login-form-group">
+      <i class="mdi-content-email"></i>
+      {{input value=login placeholderTranslation='username_or_email'}}
+    </div>
+
+    <div class="form-group">
+      {{input type="password" class="form-control" value=password placeholderTranslation='password'}}
+    </div>
+
+    <div class="form-group">
+      <input type="submit" class="btn btn-primary form-control" {{translateAttr value='login'}}>
+    </div>
+
+    <div class="form-group center">
+      {{#link-to 'sessions.forgot_password'}}{{t 'forgot_your_password'}}{{/link-to}}
+    </div>
+
+  </form>
+</div>

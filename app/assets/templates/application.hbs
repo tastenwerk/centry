@@ -1,1 +1,7 @@
-<h1>apps</h1>
+{{#if authenticated}}
+<h1>you are logged int</h1>
+{{/if}}
+
+{{outlet}}
+
+{{outlet 'modal'}}
