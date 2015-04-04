@@ -58,3 +58,23 @@ module.exports.initRoutePaths = function(){
   });
   return routers;
 };
+
+/**
+ * load static paths (bower_components, public)
+ */
+module.exports.initStaticPaths = function( app ){
+  var routers = {};
+  registry.forEach( function(plugin){
+    [ 'bower_components', 'public' ]
+      .forEach( function( p ){
+        var pp = join( plugin.path, p );
+        if( fs.existsSync( pp ) ){
+          logger.info('adding static path', pp);
+          if( p == 'public' )
+            app.use( express.static( pp ) );
+          else
+            app.use( join('/',p), express.static(pp) );
+        }
+      });
+  });
+};

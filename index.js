@@ -33,13 +33,12 @@ var app = express();
 //   saveUninitialized: false
 // });
 
-app.use( express.static( join(process.cwd(), 'public') ) );
-
 app.use( bodyParser.urlencoded({ extended: true }) );
 
 module.exports.app = app;
 
 module.exports.start = function(){
+  plugin.initStaticPaths( app );
   var routers = plugin.initRoutePaths();
   require(join( process.cwd(), 'config', 'routes' ))( app, routers );
   db.start();
